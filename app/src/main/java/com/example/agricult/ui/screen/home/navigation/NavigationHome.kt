@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncement
 import com.example.agricult.ui.screen.home.categories.Categories
+import com.example.agricult.ui.screen.home.categories.category.CategoryScreen
 import com.example.agricult.ui.screen.home.favorites.FavoritesScreen
 import com.example.agricult.ui.screen.home.profileUser.ProfileUserScreen
 import com.example.agricult.viewmodel.*
@@ -46,6 +47,10 @@ fun NavigationHome(
                 requestViewModel = requestViewModel,
                 navController = navController
             )
+        }
+
+        composable("category_screen") {
+            CategoryScreen()
         }
 
     }

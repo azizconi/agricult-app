@@ -17,13 +17,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -172,7 +167,6 @@ fun SearchBar(modifier: Modifier = Modifier) {
             },
         )
     }
-
 }
 
 
@@ -184,8 +178,6 @@ fun CategoriesItem(
     getToken: String,
     navHostController: NavHostController
 ) {
-
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -207,16 +199,13 @@ fun CategoriesItem(
                     categoryId = categoriesModel.id
                 )
 
-                navHostController.navigate("category_screen") {
-                    popUpTo(navHostController.graph.startDestinationId) {
-                        saveState = true
-                    }
-
-                    launchSingleTop = true
-                    restoreState = true
-
-                }
-
+                navHostController.navigate("category_screen")
+//                    popUpTo(navHostController.graph.startDestinationId) {
+//                        saveState = true
+//                    }
+//                    launchSingleTop = true
+//                    restoreState = true
+//                }
 
             },
         verticalAlignment = Alignment.CenterVertically
@@ -228,7 +217,6 @@ fun CategoriesItem(
             modifier = modifier
                 .width(44.dp)
                 .height(44.dp)
-
         )
 
         Column(
@@ -260,5 +248,3 @@ fun CategoriesItem(
 
     }
 }
-
-

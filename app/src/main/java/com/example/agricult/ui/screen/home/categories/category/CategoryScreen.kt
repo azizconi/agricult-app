@@ -3,6 +3,7 @@ package com.example.agricult.ui.screen.home.categories.category
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
 import com.google.accompanist.coil.rememberCoilPainter
 import com.example.agricult.R
+import com.example.agricult.ui.screen.home.announcement.AnnouncementItems
+import com.example.agricult.ui.screen.home.announcement.AnnouncementScreen
 import com.example.agricult.ui.theme.PrimaryColorGreen
 
 
@@ -37,27 +40,14 @@ fun CategoryScreen(
     }
 
 
-
     Column {
         CategoriesToolbar()
-
         UnderSearchButtons() {
             expandedAnimation = it
         }
-
-//        Box(
-//            modifier = modifier
-//                .animateContentSize()
-////                { initialValue, targetValue ->  }
-//        ) {
-
         FilterScreen(onClickFilter = expandedAnimation)
-
-//        }
-
-
+        AnnouncementScreen()
     }
-
 }
 
 
@@ -67,20 +57,28 @@ fun UnderSearchButtons(
     onClickFilter: (Boolean) -> Unit
 ) {
 
-    var expanded by remember {
+    var expandedFilterButton by remember {
         mutableStateOf(false)
     }
 
-    var colorButtons by remember {
+    var colorFilterButton by remember {
         mutableStateOf(Color(0xff999999))
     }
 
+    var expandedSortButton by remember {
+        mutableStateOf(false)
+    }
+
+    var iconSortButton by remember {
+        mutableStateOf(R.drawable.ic_sort_v1)
+    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White),
+            .background(Color.White)
+            .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
 
         ) {
@@ -89,19 +87,28 @@ fun UnderSearchButtons(
             modifier = modifier
                 .padding(start = 16.dp)
                 .width(187.dp)
-                .height(56.dp),
-//                .background(Color.Blue),
+                .height(56.dp)
+                .clickable {
+                    expandedSortButton = !expandedSortButton
+
+                    iconSortButton = if (expandedSortButton) {
+                        R.drawable.ic_sort_v1
+                    } else {
+                        R.drawable.ic_sort_v2
+                    }
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Icon(
-                painter = rememberCoilPainter(request = R.drawable.ic_sort),
+            Image(
+                painter = rememberCoilPainter(
+                    request = iconSortButton
+                ),
                 contentDescription = "Sort by",
                 modifier = modifier
                     .width(24.dp)
                     .height(24.dp)
                     .padding(4.dp),
-                tint = Color(0xff999999)
             )
 
             Text(
@@ -120,11 +127,11 @@ fun UnderSearchButtons(
                 .width(188.dp)
                 .height(56.dp)
                 .clickable {
-                    expanded = !expanded
+                    expandedFilterButton = !expandedFilterButton
 
-                    onClickFilter(expanded)
+                    onClickFilter(expandedFilterButton)
 
-                    colorButtons = if (expanded) {
+                    colorFilterButton = if (expandedFilterButton) {
                         PrimaryColorGreen
                     } else {
                         Color(0xff999999)
@@ -140,14 +147,14 @@ fun UnderSearchButtons(
                 modifier = modifier
                     .width(24.dp)
                     .height(24.dp),
-                tint = colorButtons
+                tint = colorFilterButton
             )
 
             Text(
                 text = "Фильтры",
-                color = colorButtons,
+                color = colorFilterButton,
                 modifier = modifier
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 6.dp),
                 fontSize = 14.sp,
                 fontFamily = FontFamily(Font(R.font.roboto_regular))
             )
@@ -203,7 +210,7 @@ fun FilterScreen(
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(142.dp)
+                    .height(158.dp)
                     .background(Color.White)
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp),
@@ -245,10 +252,10 @@ fun FilterScreen(
                 Button(
                     modifier = modifier
                         .fillMaxWidth()
-                        .height(55.dp),
-//                        .padding(top = 8.dp),
+                        .height(60.dp)
+                        .padding(bottom = 16.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
-                    onClick = {  }
+                    onClick = { }
                 ) {
                     Text(
                         text = "Поиск",
@@ -258,14 +265,11 @@ fun FilterScreen(
                         fontFamily = FontFamily(Font(R.font.roboto_regular))
                     )
                 }
-                
             }
         }
-
     }
-
-
 }
+
 
 @Preview
 @Composable

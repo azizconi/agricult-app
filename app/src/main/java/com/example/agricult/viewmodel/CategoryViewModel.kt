@@ -2,14 +2,20 @@ package com.example.agricult.viewmodel
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.models.category.CategoryModel
+import com.example.agricult.models.category.Data
 import com.example.agricult.network.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class CategoryViewModel(application: Application): AndroidViewModel(application) {
+
+    private var setCategoryModel: List<Data> = emptyList()
+    var getCategoryModel = mutableStateOf(setCategoryModel)
 
 
     fun getCategoryRequest(token: String, categoryId: Int?) {
@@ -26,8 +32,12 @@ class CategoryViewModel(application: Application): AndroidViewModel(application)
                 ) {
 
                     if (response.isSuccessful) {
-                        response.body()?.data?.forEach {
+                        response.body()?.let {
+
+                            getCategoryModel.value = it.data
                             Log.e("TAG", "onResponse: $it", )
+
+
                         }
                     }
 

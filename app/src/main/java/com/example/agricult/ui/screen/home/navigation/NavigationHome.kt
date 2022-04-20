@@ -3,8 +3,10 @@ package com.example.agricult.ui.screen.home.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncement
 import com.example.agricult.ui.screen.home.categories.Categories
 import com.example.agricult.ui.screen.home.categories.category.CategoryScreen
@@ -49,8 +51,18 @@ fun NavigationHome(
             )
         }
 
-        composable("category_screen") {
-            CategoryScreen()
+        composable(
+            "category_screen/{id}&{getToken}",
+        ) {
+            val id = it.arguments?.getString("id")
+
+            val getToken = it.arguments?.getString("getToken")
+
+            CategoryScreen(
+                idCategory = id.toString(),
+                getToken = getToken,
+                categoryViewModel = categoryViewModel
+            )
         }
 
     }

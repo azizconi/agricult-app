@@ -194,12 +194,9 @@ fun CategoriesItem(
                 )
             }
             .clickable {
-                categoryViewModel.getCategoryRequest(
-                    token = getToken,
-                    categoryId = categoriesModel.id
-                )
 
-                navHostController.navigate("category_screen")
+
+                navHostController.navigate("category_screen/${categoriesModel.id}&$getToken")
 //                    popUpTo(navHostController.graph.startDestinationId) {
 //                        saveState = true
 //                    }

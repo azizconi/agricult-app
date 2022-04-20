@@ -1,5 +1,6 @@
 package com.example.agricult.ui.screen.home.categories.category
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
@@ -14,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,14 +27,17 @@ import androidx.compose.ui.unit.sp
 import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
 import com.google.accompanist.coil.rememberCoilPainter
 import com.example.agricult.R
-import com.example.agricult.ui.screen.home.announcement.AnnouncementItems
-import com.example.agricult.ui.screen.home.announcement.AnnouncementScreen
+import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
 import com.example.agricult.ui.theme.PrimaryColorGreen
+import com.example.agricult.viewmodel.CategoryViewModel
 
 
 @Composable
 fun CategoryScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    idCategory: String,
+    categoryViewModel: CategoryViewModel,
+    getToken: String? = null
 ) {
 
     var expandedAnimation by remember {
@@ -40,13 +45,20 @@ fun CategoryScreen(
     }
 
 
+    if (getToken != null) {
+        categoryViewModel.getCategoryRequest(
+            token = getToken,
+            categoryId = idCategory.toInt()
+        )
+    }
+
     Column {
         CategoriesToolbar()
         UnderSearchButtons() {
             expandedAnimation = it
         }
         FilterScreen(onClickFilter = expandedAnimation)
-        AnnouncementScreen()
+        AnnouncementItemScreen(categoryViewModel = categoryViewModel)
     }
 }
 
@@ -230,12 +242,17 @@ fun FilterScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = modifier
                             .width(160.dp)
-                            .height(60.dp)
+                            .height(60.dp),
+                        colors = TextFieldDefaults
+                            .outlinedTextFieldColors(
+                                cursorColor = PrimaryColorGreen,
+                                focusedBorderColor = PrimaryColorGreen,
+                                focusedLabelColor = PrimaryColorGreen
+                            )
                     )
 
 
                     Text(text = "-")
-
 
 
                     OutlinedTextField(
@@ -245,7 +262,13 @@ fun FilterScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = modifier
                             .width(160.dp)
-                            .height(60.dp)
+                            .height(60.dp),
+                        colors = TextFieldDefaults
+                            .outlinedTextFieldColors(
+                                cursorColor = PrimaryColorGreen,
+                                focusedBorderColor = PrimaryColorGreen,
+                                focusedLabelColor = PrimaryColorGreen
+                            )
                     )
                 }
 
@@ -271,8 +294,8 @@ fun FilterScreen(
 }
 
 
-@Preview
-@Composable
-fun PreviewCategoryScreen() {
-    CategoryScreen()
-}
+//@Preview
+//@Composable
+//fun PreviewCategoryScreen() {
+//    CategoryScreen()
+//}

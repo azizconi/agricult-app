@@ -18,17 +18,21 @@ class CategoriesViewModel(application: Application): AndroidViewModel(applicatio
     private var setCategoriesModel: List<CategoriesModel> = emptyList()
     var getCategoriesModel = mutableStateOf(setCategoriesModel)
 
-    fun getCategoriesRequest(token: String) {
-        return setCategoriesRequest(token = token)
+    fun getCategoriesRequest(token: String, dataStoreViewModel: DataStoreViewModel) {
+        return setCategoriesRequest(token = token, dataStoreViewModel = dataStoreViewModel)
     }
 
-    private fun setCategoriesRequest(token: String){
+    private fun setCategoriesRequest(token: String, dataStoreViewModel: DataStoreViewModel){
         RetrofitInstance().api().getCategories(token = "Bearer $token")
             .enqueue(object : Callback<List<CategoriesModel>> {
                 override fun onResponse(
                     call: Call<List<CategoriesModel>>,
                     response: Response<List<CategoriesModel>>
                 ) {
+
+                    if (response.code() == 401) {
+                        dataStoreViewModel.clearDataStore()
+                    }
 
 
                     if (response.isSuccessful) {

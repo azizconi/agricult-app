@@ -18,7 +18,8 @@ import retrofit2.Response
 import java.io.IOException
 
 
-class RequestViewModel(application: Application) : AndroidViewModel(application) {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
 
     val isSuccessLoading = mutableStateOf(value = false)
     private val setErrorMessage = ErrorMessageLogin()
@@ -29,12 +30,17 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
     val checkInternet = mutableStateOf(value = false)
 
 
-
-    fun getLoginRequest(authenticationUser: LoginUserModel) {
-        return setLoginRequest(authenticationUser)
+    fun getLoginRequest(
+        authenticationUser: LoginUserModel,
+        dataStoreViewModel: DataStoreViewModel
+    ) {
+        return setLoginRequest(authenticationUser, dataStoreViewModel)
     }
 
-    private fun setLoginRequest(authenticationUser: LoginUserModel) {
+    private fun setLoginRequest(
+        authenticationUser: LoginUserModel,
+        dataStoreViewModel: DataStoreViewModel
+    ) {
         RetrofitInstance().api().login(authenticationUser = authenticationUser)
             .enqueue(object : Callback<AuthResult> {
                 override fun onResponse(call: Call<AuthResult>, response: Response<AuthResult>) {
@@ -49,7 +55,7 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
                                 ErrorMessageLogin::class.java
                             )
                             getErrorMessageLogin.value = pojo
-                            Log.e("TAG", "onResponse: ${getErrorMessageLogin.value.message}", )
+                            Log.e("TAG", "onResponse: ${getErrorMessageLogin.value.message}")
 
 //                            errorMessageLogin.value = pojo
 //                            errorMessageLogin.value?.errors?.phone?.forEach {
@@ -64,14 +70,17 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
                     if (response.isSuccessful) {
 
 
-
                         isSuccessLoading.value = true
+
 
 
                         response.body()?.data.let {
                             if (it != null) {
                                 getDataAgriculture.value = it
+                                dataStoreViewModel.saveToDataStore(it.accessToken.toString())
                             }
+
+
                         }
 
 
@@ -90,6 +99,7 @@ class RequestViewModel(application: Application) : AndroidViewModel(application)
 
 
     fun getRegisterRequest(registrationUser: RegistrationUser) {
+
         return setRegisterRequest(registrationUser = registrationUser)
     }
 

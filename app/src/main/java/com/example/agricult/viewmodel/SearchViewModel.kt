@@ -1,7 +1,6 @@
 package com.example.agricult.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import com.example.agricult.models.category.CategoryModel
@@ -11,23 +10,24 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class CategoryViewModel(application: Application) : AndroidViewModel(application) {
+class SearchViewModel(application: Application) : AndroidViewModel(application) {
+
 
     private var setCategoryModel: List<Data> = emptyList()
     var getCategoryModel = mutableStateOf(setCategoryModel)
 
 
-    fun getCategoryRequest(
+    fun getSearchAnnouncement(
+        query: String,
         token: String,
-        categoryId: Int,
-        priceFrom: Int? = null,
-        priceTo: Int? = null,
-        page: Int? = null,
-        orderBy: String? = null
+        priceFrom: Int,
+        priceTo: Int,
+        page: Int,
+        orderBy: String
     ) {
-        return setCategoryRequest(
+        return setSearchAnnouncement(
+            query = query,
             token = token,
-            categoryId = categoryId,
             priceFrom = priceFrom,
             priceTo = priceTo,
             page = page,
@@ -36,22 +36,21 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    private fun setCategoryRequest(
+    private fun setSearchAnnouncement(
+        query: String,
         token: String,
-        categoryId: Int,
-        priceFrom: Int? = null,
-        priceTo: Int? = null,
-        page: Int? = null,
-        orderBy: String? = null
+        priceFrom: Int,
+        priceTo: Int,
+        page: Int,
+        orderBy: String
     ) {
-
-        RetrofitInstance().api().getCategory(
-            token = "Bearer $token",
-            categoryId = categoryId,
+        RetrofitInstance().api().getSearchAnnouncement(
+            token = token,
+            query = query,
             priceFrom = priceFrom,
             priceTo = priceTo,
             page = page,
-            orderBy = orderBy.toString()
+            orderBy = orderBy
         )
             .enqueue(object : Callback<CategoryModel> {
                 override fun onResponse(
@@ -60,23 +59,22 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                 ) {
 
                     if (response.isSuccessful) {
-                        response.body()?.let {
 
-                            getCategoryModel.value = it.data
-                            Log.e("TAG", "onResponse: $it")
-
-
+                        response.body()?.data.let {
+                            if (it != null) {
+                                getCategoryModel.value = it
+                            }
                         }
+
                     }
 
                 }
 
                 override fun onFailure(call: Call<CategoryModel>, t: Throwable) {
-                    Log.e("TAG", "onFailure: ${t.message}")
+                    TODO("Not yet implemented")
                 }
 
             })
-
     }
 
 }

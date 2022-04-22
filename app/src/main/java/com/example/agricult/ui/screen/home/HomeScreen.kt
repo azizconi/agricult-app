@@ -27,10 +27,12 @@ import com.example.agricult.viewmodel.*
 fun HomeScreen(
     roomViewModel: RoomViewModel,
     profileRequestViewModel: ProfileRequestViewModel,
-    requestViewModel: RequestViewModel,
+    loginViewModel: LoginViewModel,
     navController: NavController,
     categoriesViewModel: CategoriesViewModel,
-    categoryViewModel: CategoryViewModel
+    categoryViewModel: CategoryViewModel,
+    searchViewModel: SearchViewModel,
+    dataStoreViewModel: DataStoreViewModel
 ) {
     val navHostController = rememberNavController()
 
@@ -77,10 +79,12 @@ fun HomeScreen(
             navController = navController,
             roomViewModel = roomViewModel,
             profileRequestViewModel = profileRequestViewModel,
-            requestViewModel = requestViewModel,
+            loginViewModel = loginViewModel,
             navHostController = navHostController,
             categoriesViewModel = categoriesViewModel,
-            categoryViewModel = categoryViewModel
+            categoryViewModel = categoryViewModel,
+            searchViewModel = searchViewModel,
+            dataStoreViewModel = dataStoreViewModel
         )
     }
 }

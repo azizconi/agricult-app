@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/Agricult/app/src/main/res/drawable/heard.xml" value="0.2265" />
+        <entry key="..\:/Android/Agricult/app/src/main/res/drawable/heard_click.xml" value="0.121" />
         <entry key="..\:/Android/Agricult/app/src/main/res/drawable/ic_sort.xml" value="0.2265" />
         <entry key="..\:/Android/Agricult/app/src/main/res/drawable/ic_sort_1.xml" value="0.2265" />
         <entry key="..\:/Android/Agricult/app/src/main/res/drawable/ic_sort_v1.xml" value="0.2265" />

@@ -1,14 +1,12 @@
 package com.example.agricult.ui.screen.home.announcementItem
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -16,10 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.agricult.R
@@ -33,13 +29,16 @@ import com.google.accompanist.coil.rememberCoilPainter
 @Composable
 fun AnnouncementItemScreen(
     modifier: Modifier = Modifier,
-    categoryViewModel: CategoryViewModel
+    categoryModel: List<Data>
 ) {
-    val getCategoryData = categoryViewModel.getCategoryModel.value
 
-//    val context = LocalContext.current
-//    Toast.makeText(context, categoryViewModel.getCategoryModel.value.size)
-    Log.e("TAG", "AnnouncementItemScreen: ${getCategoryData.size}")
+//    val categoryDataInit = categoryViewModel.getCategoryModel.value
+//
+//    val categoryData by remember {
+//        mutableStateOf(categoryDataInit)
+//    }
+
+    Log.e("TAG", "AnnouncementItemScreen: ${categoryModel.size}")
 
 
     LazyColumn(
@@ -50,9 +49,9 @@ fun AnnouncementItemScreen(
             .padding(bottom = 60.dp),
 
         ) {
-        items(getCategoryData.size) {
+        items(categoryModel.size) {
 
-            AnnouncementItems(data = getCategoryData[it])
+            AnnouncementItems(data = categoryModel[it])
         }
     }
 }
@@ -64,15 +63,15 @@ fun AnnouncementItems(
     data: Data
 ) {
 
-    val isFavouriteColor = remember {
-        mutableStateOf(Color.Red)
+    val isFavouriteIcon = remember {
+        mutableStateOf(R.drawable.heart)
     }
 
 
-    if (data.is_favorite) {
-        isFavouriteColor.value = Color.Red
+    if (!data.is_favorite) {
+        isFavouriteIcon.value = R.drawable.heart
     } else {
-        isFavouriteColor.value = Color.White
+        isFavouriteIcon.value = R.drawable.heard_click
     }
 
     Row(
@@ -139,7 +138,6 @@ fun AnnouncementItems(
                                 color = PrimaryColorGreen,
                                 fontFamily = FontFamily(Font(R.font.roboto_medium)),
                                 fontSize = 14.sp
-
                             )
 
                         }
@@ -157,39 +155,17 @@ fun AnnouncementItems(
                                 .height(20.dp)
 
                         ) {
-                            Icon(
-                                painter = rememberCoilPainter(request = R.drawable.heart),
+                            Image(
+                                painter = rememberCoilPainter(request = isFavouriteIcon.value),
                                 contentDescription = "favorite",
                                 modifier = modifier
                                     .width(20.dp)
                                     .height(18.dp),
-                                
-                                tint = if (!data.is_favorite) {
-                                    TextPalleteGrey
-                                } else {
-                                    Color.Red
-                                },
-
-
                             )
                         }
-
                     }
-
                 }
             }
-
-
         }
-
-
     }
-
 }
-
-
-//@Preview
-//@Composable
-//fun PreviewAnnouncementScreen() {
-//    AnnouncementItemScreen()
-//}

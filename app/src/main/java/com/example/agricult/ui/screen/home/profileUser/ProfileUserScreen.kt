@@ -1,7 +1,6 @@
 package com.example.agricult.ui.screen.home.profileUser
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,8 +30,9 @@ import com.example.agricult.R
 import com.example.agricult.ui.screen.ErrorInternetConnection
 import com.example.agricult.ui.screen.navigation.Screen
 import com.example.agricult.ui.theme.PrimaryColorGreen
+import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.ProfileRequestViewModel
-import com.example.agricult.viewmodel.RequestViewModel
+import com.example.agricult.viewmodel.LoginViewModel
 import com.example.agricult.viewmodel.RoomViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 import java.text.SimpleDateFormat
@@ -44,20 +44,21 @@ fun ProfileUserScreen(
     modifier: Modifier = Modifier,
     profileRequestViewModel: ProfileRequestViewModel,
     roomViewModel: RoomViewModel,
-    requestViewModel: RequestViewModel,
-    navController: NavController
+    loginViewModel: LoginViewModel,
+    navController: NavController,
+    dataStoreViewModel: DataStoreViewModel
 ) {
 
 
-    val getTokenList = roomViewModel.getToken().observeAsState()
-//    getTokenList.value?.forEach {
-
-        getTokenList.value?.get(getTokenList.value?.size?.minus(1)!!)?.accessToken?.let { it1 ->
-            profileRequestViewModel.getShowProfileUser(
-                token = it1,
-                roomViewModel = roomViewModel
-            )
-        }
+//    val getTokenList = roomViewModel.getToken().observeAsState()
+////    getTokenList.value?.forEach {
+//
+//        getTokenList.value?.get(getTokenList.value?.size?.minus(1)!!)?.accessToken?.let { it1 ->
+//            profileRequestViewModel.getShowProfileUser(
+//                token = it1,
+//                roomViewModel = roomViewModel
+//            )
+//        }
 
 //    }
 
@@ -65,13 +66,17 @@ fun ProfileUserScreen(
         mutableStateOf(true)
     }
 
+    val getToken = dataStoreViewModel.readFromDataStore.value
+
     if (isLock.value) {
-        getTokenList.value?.get(getTokenList.value!!.size- 1)?.accessToken?.let { it ->
+//        getTokenList.value?.get(getTokenList.value!!.size- 1)?.accessToken?.let { it ->
+        if (getToken != null) {
             profileRequestViewModel.getShowProfileUser(
-                token = it,
+                token = getToken,
                 roomViewModel = roomViewModel
             )
         }
+//        }
         isLock.value = false
     }
 
@@ -203,8 +208,9 @@ fun ProfileUserScreen(
                         MenuItems(
                             itemMenuProfileUser = itemMenuProfileUser[it],
                             roomViewModel = roomViewModel,
-                            requestViewModel = requestViewModel,
-                            navController = navController
+                            loginViewModel = loginViewModel,
+                            navController = navController,
+                            dataStoreViewModel = dataStoreViewModel
                         )
 
                     }
@@ -285,8 +291,9 @@ fun MenuItems(
     modifier: Modifier = Modifier,
     itemMenuProfileUser: ItemMenuProfileUser,
     roomViewModel: RoomViewModel,
-    requestViewModel: RequestViewModel,
-    navController: NavController
+    loginViewModel: LoginViewModel,
+    navController: NavController,
+    dataStoreViewModel: DataStoreViewModel
 ) {
     val openDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -307,15 +314,8 @@ fun MenuItems(
                 TextButton(
                     onClick = {
                         openDialog.value = false
-                        roomViewModel.deleteToken()
-                        requestViewModel.isSuccessLoading.value = false
-                        navController.navigate(Screen.MainScreen.route) {
-                            popUpTo(0) {
-                                inclusive = true
-                            }
-                        }
 
-
+                        dataStoreViewModel.clearDataStore()
                     }) {
                     Text(text = "Confirm", color = Color.Black)
                 }

@@ -37,7 +37,7 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
 
 
                     if (response.code() != 200) {
-                        roomViewModel.deleteToken()
+//                        roomViewModel.deleteToken()
 
                         val gson = GsonBuilder().create()
                         val pojo: ErrorMessageLogin

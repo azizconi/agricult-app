@@ -1,6 +1,7 @@
 package com.example.agricult.ui.screen.navigation
 
-import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -18,29 +19,32 @@ import com.example.agricult.viewmodel.*
 
 @Composable
 fun Navigation(
-    requestViewModel: RequestViewModel,
+    loginViewModel: LoginViewModel,
     roomViewModel: RoomViewModel,
     profileRequestViewModel: ProfileRequestViewModel,
     categoriesViewModel: CategoriesViewModel,
-    categoryViewModel: CategoryViewModel
+    categoryViewModel: CategoryViewModel,
+    searchViewModel: SearchViewModel,
+    dataStoreViewModel: DataStoreViewModel
 ) {
     val navController = rememberNavController()
+
+    val context = LocalContext.current
+
 
     val isSuccessLoading = remember {
         mutableStateOf(false)
     }
 
-    val getTokenList = roomViewModel.getToken().observeAsState()
-    getTokenList.value?.forEach {
+
+    val getToken = dataStoreViewModel.readFromDataStore.observeAsState()
 
 
-        if (it.accessToken == null) {
-            isSuccessLoading.value = false
-        } else {
-            isSuccessLoading.value = it.isSuccessLoading
-        }
 
-    }
+    Log.e("TAG", "Navigation: ${getToken.value}")
+
+
+    isSuccessLoading.value = getToken.value != null
 
 
     val startDestination = if (isSuccessLoading.value) {
@@ -54,7 +58,7 @@ fun Navigation(
 
         composable(route = Screen.MainScreen.route) {
 
-            MainScreen(navController = navController, requestViewModel = requestViewModel)
+            MainScreen(navController = navController, loginViewModel = loginViewModel)
 
         }
 
@@ -66,11 +70,12 @@ fun Navigation(
             } else {
                 LoginScreen(
                     navController = navController,
-                    requestViewModel = requestViewModel,
-                    roomViewModel = roomViewModel
+                    loginViewModel = loginViewModel,
+                    roomViewModel = roomViewModel,
+                    dataStoreViewModel = dataStoreViewModel
                 ) {
 
-                    isSuccessLoading.value = it
+//                    isSuccessLoading.value = it
 
 
                 }
@@ -81,17 +86,19 @@ fun Navigation(
         }
 
         composable(route = Screen.RegisterScreen.route) {
-            RegisterScreen(navController = navController, requestViewModel = requestViewModel)
+            RegisterScreen(navController = navController, loginViewModel = loginViewModel)
         }
 
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(
                 profileRequestViewModel = profileRequestViewModel,
                 roomViewModel = roomViewModel,
-                requestViewModel = requestViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController,
                 categoriesViewModel = categoriesViewModel,
-                categoryViewModel = categoryViewModel
+                categoryViewModel = categoryViewModel,
+                searchViewModel = searchViewModel,
+                dataStoreViewModel = dataStoreViewModel
             )
 
         }

@@ -33,7 +33,7 @@ import com.example.agricult.models.requests.RegistrationUser
 import com.example.agricult.ui.screen.login.OutlinedTextFieldBackground
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
-import com.example.agricult.viewmodel.RequestViewModel
+import com.example.agricult.viewmodel.LoginViewModel
 import java.util.*
 
 
@@ -41,7 +41,7 @@ import java.util.*
 fun RegisterScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    requestViewModel: RequestViewModel
+    loginViewModel: LoginViewModel
 ) {
 
     var name by remember {
@@ -376,7 +376,7 @@ fun RegisterScreen(
                     ).show()
                 } else {
                     if (password == confirmPassword) {
-                        requestViewModel.getRegisterRequest(
+                        loginViewModel.getRegisterRequest(
                             RegistrationUser(
                                 name = name,
                                 surname = surname,

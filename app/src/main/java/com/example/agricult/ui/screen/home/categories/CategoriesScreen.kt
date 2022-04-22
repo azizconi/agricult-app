@@ -25,9 +25,7 @@ import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.ui.theme.PrimaryColorGreen
-import com.example.agricult.viewmodel.CategoriesViewModel
-import com.example.agricult.viewmodel.CategoryViewModel
-import com.example.agricult.viewmodel.RoomViewModel
+import com.example.agricult.viewmodel.*
 import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
@@ -36,20 +34,20 @@ fun Categories(
     roomViewModel: RoomViewModel,
     modifier: Modifier = Modifier,
     categoryViewModel: CategoryViewModel,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    searchViewModel: SearchViewModel,
+    dataStoreViewModel: DataStoreViewModel
 ) {
-
-    val getTokenFromRoom = roomViewModel.getToken().observeAsState()
 
     val getToken = remember {
         mutableStateOf("")
     }
 
-    if (getTokenFromRoom.value?.get(getTokenFromRoom.value!!.size - 1)?.accessToken != null) {
-        getToken.value =
-            getTokenFromRoom.value?.get(getTokenFromRoom.value!!.size - 1)?.accessToken!!
-        categoriesViewModel.getCategoriesRequest(getToken.value)
-    }
+    getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
+
+
+
+    categoriesViewModel.getCategoriesRequest(getToken.value, dataStoreViewModel = dataStoreViewModel)
     val getCategoriesModel = categoriesViewModel.getCategoriesModel.value
 
     Log.e("TAG", "CategoriesItem: ${getCategoriesModel.size}")
@@ -195,14 +193,18 @@ fun CategoriesItem(
             }
             .clickable {
 
+                categoryViewModel.getCategoryRequest(
+                    token = getToken,
+                    categoryId = categoriesModel.id!!,
+                    priceFrom = 0,
+                    priceTo = 1000000,
+                    orderBy = "desc",
+                    page = 1
+                )
 
-                navHostController.navigate("category_screen/${categoriesModel.id}&$getToken")
-//                    popUpTo(navHostController.graph.startDestinationId) {
-//                        saveState = true
-//                    }
-//                    launchSingleTop = true
-//                    restoreState = true
-//                }
+
+                navHostController.navigate("category_screen?id=${categoriesModel.id}")
+
 
             },
         verticalAlignment = Alignment.CenterVertically

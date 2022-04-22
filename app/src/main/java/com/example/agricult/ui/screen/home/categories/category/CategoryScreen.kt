@@ -1,6 +1,6 @@
 package com.example.agricult.ui.screen.home.categories.category
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
@@ -15,59 +15,132 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
-import com.google.accompanist.coil.rememberCoilPainter
 import com.example.agricult.R
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
+import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.viewmodel.CategoryViewModel
+import com.example.agricult.viewmodel.DataStoreViewModel
+import com.google.accompanist.coil.rememberCoilPainter
 
 
 @Composable
 fun CategoryScreen(
-    modifier: Modifier = Modifier,
     idCategory: String,
     categoryViewModel: CategoryViewModel,
-    getToken: String? = null
+    dataStoreViewModel: DataStoreViewModel
+
 ) {
 
     var expandedAnimation by remember {
         mutableStateOf(false)
     }
 
-
-    if (getToken != null) {
-        categoryViewModel.getCategoryRequest(
-            token = getToken,
-            categoryId = idCategory.toInt()
-        )
+    var orderByData by remember {
+        mutableStateOf("desc")
     }
+
+    var minPriceByData by remember {
+        mutableStateOf("")
+    }
+
+    var maxPriceByData by remember {
+        mutableStateOf("")
+    }
+
+    var onClickFilterButtonData by remember {
+        mutableStateOf(false)
+    }
+
+
+
+
 
     Column {
         CategoriesToolbar()
-        UnderSearchButtons() {
-            expandedAnimation = it
+        UnderSearchButtons(
+            categoryViewModel = categoryViewModel,
+            getToken = dataStoreViewModel.readFromDataStore.value,
+            idCategory = idCategory,
+
+            ) { click, orderBy, clickSortingButton ->
+            expandedAnimation = click
+            orderByData = orderBy
+
+            if (clickSortingButton) {
+                categoryViewModel.getCategoryRequest(
+                    categoryId = idCategory.toInt(),
+                    token = dataStoreViewModel.readFromDataStore.value.toString(),
+                    orderBy = "desc",
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                )
+            } else {
+                categoryViewModel.getCategoryRequest(
+                    categoryId = idCategory.toInt(),
+                    token = dataStoreViewModel.readFromDataStore.value.toString(),
+                    orderBy = "asc",
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                )
+            }
+
+
+
         }
-        FilterScreen(onClickFilter = expandedAnimation)
-        AnnouncementItemScreen(categoryViewModel = categoryViewModel)
+        FilterScreen(
+            onClickFilter = expandedAnimation,
+            categoryViewModel = categoryViewModel,
+            getToken = dataStoreViewModel.readFromDataStore.value,
+            idCategory = idCategory,
+            orderBy = orderByData
+        ) { minPrice, maxPrice, onClickSearchFilterButton ->
+            minPriceByData = minPrice
+            maxPriceByData = maxPrice
+
+            onClickFilterButtonData = onClickSearchFilterButton
+
+            Log.e("TAG", "CategoryScreen:102 $onClickFilterButtonData", )
+            if (onClickFilterButtonData){
+                categoryViewModel.getCategoryRequest(
+                    token = dataStoreViewModel.readFromDataStore.value.toString(),
+                    categoryId = idCategory.toInt(),
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                    orderBy = orderByData
+                )
+            }
+
+        }
+        AnnouncementItemScreen(categoryModel = categoryViewModel.getCategoryModel.value)
     }
+
+
+
+
+
 }
 
 
 @Composable
 fun UnderSearchButtons(
     modifier: Modifier = Modifier,
-    onClickFilter: (Boolean) -> Unit
+    categoryViewModel: CategoryViewModel,
+    idCategory: String,
+    getToken: String? = null,
+    onClick: (clickFilter: Boolean, orderBy: String, onClickSortingButton: Boolean) -> Unit,
 ) {
+
+    val orderByCategoryData by remember {
+        mutableStateOf("desc")
+    }
 
     var expandedFilterButton by remember {
         mutableStateOf(false)
@@ -78,12 +151,14 @@ fun UnderSearchButtons(
     }
 
     var expandedSortButton by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
 
     var iconSortButton by remember {
         mutableStateOf(R.drawable.ic_sort_v1)
     }
+
+
 
     Row(
         modifier = modifier
@@ -95,6 +170,7 @@ fun UnderSearchButtons(
 
         ) {
 
+
         Row(
             modifier = modifier
                 .padding(start = 16.dp)
@@ -103,11 +179,33 @@ fun UnderSearchButtons(
                 .clickable {
                     expandedSortButton = !expandedSortButton
 
+
+
+
                     iconSortButton = if (expandedSortButton) {
                         R.drawable.ic_sort_v1
                     } else {
                         R.drawable.ic_sort_v2
                     }
+
+                    onClick(expandedFilterButton, orderByCategoryData, expandedSortButton)
+
+
+//                    if (expandedSortButton) {
+//                        categoryViewModel.getCategoryRequest(
+//                            categoryId = idCategory.toInt(),
+//                            token = getToken.toString(),
+//                            orderBy = "desc"
+//                        )
+//                    } else {
+//                        categoryViewModel.getCategoryRequest(
+//                            categoryId = idCategory.toInt(),
+//                            token = getToken.toString(),
+//                            orderBy = "asc"
+//                        )
+//                    }
+
+
                 },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
@@ -141,7 +239,7 @@ fun UnderSearchButtons(
                 .clickable {
                     expandedFilterButton = !expandedFilterButton
 
-                    onClickFilter(expandedFilterButton)
+                    onClick(expandedFilterButton, orderByCategoryData, expandedSortButton)
 
                     colorFilterButton = if (expandedFilterButton) {
                         PrimaryColorGreen
@@ -181,11 +279,15 @@ fun UnderSearchButtons(
 @Composable
 fun FilterScreen(
     modifier: Modifier = Modifier,
-    onClickFilter: Boolean
-
+    onClickFilter: Boolean,
+    categoryViewModel: CategoryViewModel,
+    getToken: String? = null,
+    idCategory: String,
+    orderBy: String,
+    params: (minPrice: String, maxPrice: String, onClickFilterButton: Boolean) -> Unit
 ) {
 
-    var mixPrice by rememberSaveable {
+    var minPrice by rememberSaveable {
         mutableStateOf("0")
     }
 
@@ -193,6 +295,12 @@ fun FilterScreen(
         mutableStateOf("1000000")
     }
 
+
+    var onClickButtonSearchFilter by remember {
+        mutableStateOf(false)
+    }
+
+    params(minPrice, maxPrice, onClickButtonSearchFilter)
 
     AnimatedContent(
         targetState = onClickFilter,
@@ -236,8 +344,8 @@ fun FilterScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
-                        value = mixPrice,
-                        onValueChange = { mixPrice = it },
+                        value = minPrice,
+                        onValueChange = { minPrice = it },
                         label = { Text("От") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = modifier
@@ -278,7 +386,24 @@ fun FilterScreen(
                         .height(60.dp)
                         .padding(bottom = 16.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
-                    onClick = { }
+                    onClick = {
+
+
+                            onClickButtonSearchFilter = !onClickButtonSearchFilter
+
+
+
+
+//                        if (onClickButtonSearchFilter) {
+                            params(minPrice, maxPrice, onClickButtonSearchFilter)
+//                        } else {
+//                            params(minPrice, maxPrice, false)
+//                        }
+                        Log.e("TAG", "FilterScreen: $onClickButtonSearchFilter")
+                        onClickButtonSearchFilter = false
+
+                        Log.e("TAG", "FilterScreen: $onClickButtonSearchFilter")
+                    }
                 ) {
                     Text(
                         text = "Поиск",
@@ -293,9 +418,3 @@ fun FilterScreen(
     }
 }
 
-
-//@Preview
-//@Composable
-//fun PreviewCategoryScreen() {
-//    CategoryScreen()
-//}

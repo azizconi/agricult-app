@@ -14,17 +14,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.agricult.ui.screen.navigation.Screen
 import com.example.agricult.ui.theme.PrimaryColorGreen
-import com.example.agricult.viewmodel.RequestViewModel
+import com.example.agricult.viewmodel.LoginViewModel
 
 
 @Composable
 fun MainScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    requestViewModel: RequestViewModel
+    loginViewModel: LoginViewModel
 ) {
 
-    requestViewModel.isSuccessLoading.value = false
+    loginViewModel.isSuccessLoading.value = false
 
     Column(
         modifier = modifier

@@ -1,6 +1,5 @@
 package com.example.agricult.ui.screen.login
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -27,20 +26,25 @@ import androidx.navigation.NavController
 import com.example.agricult.models.requests.LoginUserModel
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
-import com.example.agricult.viewmodel.RequestViewModel
+import com.example.agricult.viewmodel.DataStoreViewModel
+import com.example.agricult.viewmodel.LoginViewModel
 import com.example.agricult.viewmodel.RoomViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
-    requestViewModel: RequestViewModel,
+    loginViewModel: LoginViewModel,
     roomViewModel: RoomViewModel,
+    dataStoreViewModel: DataStoreViewModel,
     onClickLogin: (Boolean) -> Unit,
+) {
 
-    ) {
 
+
+    val context = LocalContext.current
 
     var numberPhone by rememberSaveable {
         mutableStateOf("")
@@ -71,7 +75,6 @@ fun LoginScreen(
     val charPhoneNumber = 9
     val minCharPassword = 6
 
-    val context = LocalContext.current
 
 
     enableInputs = isVisibleProgressBar == false
@@ -193,15 +196,17 @@ fun LoginScreen(
             enabled = enableInputs,
             onClick = {
 
+
                 if (numberPhone.isNotEmpty() && password.isNotEmpty()) {
                     if (password.length >= minCharPassword && numberPhone.length == charPhoneNumber) {
 
 
-                        requestViewModel.getLoginRequest(
+                        loginViewModel.getLoginRequest(
                             LoginUserModel(
                                 "+992$numberPhone",
                                 password
-                            )
+                            ),
+                            dataStoreViewModel
                         )
 
 
@@ -249,49 +254,50 @@ fun LoginScreen(
             }
         }
 
-        if (requestViewModel.isSuccessLoading.value) {
+        if (loginViewModel.isSuccessLoading.value) {
 
 
-            requestViewModel.getDataAgriculture.value.isSuccessLoading =
-                requestViewModel.isSuccessLoading.value
-            roomViewModel.addToken(requestViewModel.getDataAgriculture.value)
+            loginViewModel.getDataAgriculture.value.isSuccessLoading =
+                loginViewModel.isSuccessLoading.value
+            roomViewModel.addToken(loginViewModel.getDataAgriculture.value)
+
 
             onClickLogin(
-                requestViewModel.isSuccessLoading.value
+                loginViewModel.isSuccessLoading.value
             )
-            requestViewModel.isSuccessLoading.value = false
+            loginViewModel.isSuccessLoading.value = false
 
         }
 
-        if (!requestViewModel.checkInternet.value) {
+        if (!loginViewModel.checkInternet.value) {
             isVisibleProgressBar = false
         }
 
 
-        if (requestViewModel.getErrorMessageLogin.value.message != null &&
-            requestViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) == null
+        if (loginViewModel.getErrorMessageLogin.value.message != null &&
+            loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) == null
         ) {
             Toast.makeText(
                 context,
-                requestViewModel.getErrorMessageLogin.value.message,
+                loginViewModel.getErrorMessageLogin.value.message,
                 Toast.LENGTH_LONG
             ).show()
-            isVisibleProgressBar = if (!requestViewModel.isSuccessLoading.value) {
+            isVisibleProgressBar = if (!loginViewModel.isSuccessLoading.value) {
                 false
             } else {
                 false
             }
-        } else if (requestViewModel.getErrorMessageLogin.value.message != null &&
-            requestViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) != null
+        } else if (loginViewModel.getErrorMessageLogin.value.message != null &&
+            loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) != null
         ) {
 
             Toast.makeText(
                 context,
-                requestViewModel.getErrorMessageLogin.value.errors?.phone?.get(0),
+                loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0),
                 Toast.LENGTH_LONG
             ).show()
 
-            isVisibleProgressBar = if (requestViewModel.isSuccessLoading.value) {
+            isVisibleProgressBar = if (loginViewModel.isSuccessLoading.value) {
                 false
             } else {
                 false
@@ -327,3 +333,4 @@ fun OutlinedTextFieldBackground(
         content()
     }
 }
+

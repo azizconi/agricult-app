@@ -1,4 +1,4 @@
-package com.example.agricult.models.category
+package com.example.agricult.models.search
 
 import com.google.gson.annotations.SerializedName
 
@@ -15,7 +15,7 @@ data class Data (
     @SerializedName("email") val email : String,
     @SerializedName("category") val category : Category,
     @SerializedName("user") val user : User,
-    @SerializedName("moderation_status") val moderation_status : ModerationStatus,
+    @SerializedName("moderation_status") val moderation_status : Moderation_status,
     @SerializedName("is_favorite") var is_favorite : Boolean,
     @SerializedName("created_at") val created_at : String
 )

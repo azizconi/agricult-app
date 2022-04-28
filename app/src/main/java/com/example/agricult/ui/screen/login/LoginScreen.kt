@@ -28,18 +28,12 @@ import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.LoginViewModel
-import com.example.agricult.viewmodel.RoomViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     loginViewModel: LoginViewModel,
-    roomViewModel: RoomViewModel,
     dataStoreViewModel: DataStoreViewModel,
-    onClickLogin: (Boolean) -> Unit,
 ) {
 
 
@@ -259,12 +253,9 @@ fun LoginScreen(
 
             loginViewModel.getDataAgriculture.value.isSuccessLoading =
                 loginViewModel.isSuccessLoading.value
-            roomViewModel.addToken(loginViewModel.getDataAgriculture.value)
 
 
-            onClickLogin(
-                loginViewModel.isSuccessLoading.value
-            )
+
             loginViewModel.isSuccessLoading.value = false
 
         }

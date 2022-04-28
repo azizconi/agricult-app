@@ -22,11 +22,11 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
 
     var isSuccessLoadingProfile = mutableStateOf(value = false)
 
-    fun getShowProfileUser(token: String, roomViewModel: RoomViewModel) {
-        return setShowProfileUser(token, roomViewModel)
+    fun getShowProfileUser(token: String) {
+        return setShowProfileUser(token)
     }
 
-    private fun setShowProfileUser(token: String, roomViewModel: RoomViewModel) {
+    private fun setShowProfileUser(token: String) {
         RetrofitInstance().api().getProfileShow(token = "Bearer $token")
             .enqueue(object : Callback<ProfileShowResult> {
                 override fun onResponse(

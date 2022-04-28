@@ -1,10 +1,11 @@
 package com.example.agricult.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import com.example.agricult.models.category.CategoryModel
-import com.example.agricult.models.category.Data
+import com.example.agricult.models.search.Data
+import com.example.agricult.models.search.SearchModel
 import com.example.agricult.network.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,8 +14,8 @@ import retrofit2.Response
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
 
-    private var setCategoryModel: List<Data> = emptyList()
-    var getCategoryModel = mutableStateOf(setCategoryModel)
+    private var setSearchModel: List<Data> = emptyList()
+    var getSearchModel = mutableStateOf(setSearchModel)
 
 
     fun getSearchAnnouncement(
@@ -45,33 +46,34 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         orderBy: String
     ) {
         RetrofitInstance().api().getSearchAnnouncement(
-            token = token,
+            token = "Bearer $token",
             query = query,
             priceFrom = priceFrom,
             priceTo = priceTo,
             page = page,
             orderBy = orderBy
         )
-            .enqueue(object : Callback<CategoryModel> {
+            .enqueue(object : Callback<SearchModel> {
                 override fun onResponse(
-                    call: Call<CategoryModel>,
-                    response: Response<CategoryModel>
+                    call: Call<SearchModel>,
+                    response: Response<SearchModel>
                 ) {
 
                     if (response.isSuccessful) {
 
-                        response.body()?.data.let {
-                            if (it != null) {
-                                getCategoryModel.value = it
-                            }
+                        response.body()?.let {
+
+//                            getCategoryModel.value = it.data
+                            getSearchModel.value = it.result.data
+
                         }
 
                     }
 
                 }
 
-                override fun onFailure(call: Call<CategoryModel>, t: Throwable) {
-                    TODO("Not yet implemented")
+                override fun onFailure(call: Call<SearchModel>, t: Throwable) {
+                    Log.e("TAG", "onFailure: ${t.message}")
                 }
 
             })

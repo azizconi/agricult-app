@@ -14,5 +14,5 @@ data class Data (
 
 	@SerializedName("accessToken") val accessToken : String? = null,
 	@ColumnInfo(name = "isSuccessLoading") var isSuccessLoading: Boolean = false
-//	@SerializedName("user") val user : com.example.agricult.models.category.User
+//	@SerializedName("user") val user : com.example.agricult.models.category.com.example.agricult.models.search.User
 )

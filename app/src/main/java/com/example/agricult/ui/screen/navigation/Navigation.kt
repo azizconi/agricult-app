@@ -20,17 +20,14 @@ import com.example.agricult.viewmodel.*
 @Composable
 fun Navigation(
     loginViewModel: LoginViewModel,
-    roomViewModel: RoomViewModel,
     profileRequestViewModel: ProfileRequestViewModel,
     categoriesViewModel: CategoriesViewModel,
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
-    dataStoreViewModel: DataStoreViewModel
+    dataStoreViewModel: DataStoreViewModel,
+    favouriteViewModel: FavouriteViewModel
 ) {
     val navController = rememberNavController()
-
-    val context = LocalContext.current
-
 
     val isSuccessLoading = remember {
         mutableStateOf(false)
@@ -38,11 +35,6 @@ fun Navigation(
 
 
     val getToken = dataStoreViewModel.readFromDataStore.observeAsState()
-
-
-
-    Log.e("TAG", "Navigation: ${getToken.value}")
-
 
     isSuccessLoading.value = getToken.value != null
 
@@ -69,16 +61,9 @@ fun Navigation(
                 }
             } else {
                 LoginScreen(
-                    navController = navController,
                     loginViewModel = loginViewModel,
-                    roomViewModel = roomViewModel,
                     dataStoreViewModel = dataStoreViewModel
-                ) {
-
-//                    isSuccessLoading.value = it
-
-
-                }
+                ) 
 
 
             }
@@ -92,13 +77,13 @@ fun Navigation(
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(
                 profileRequestViewModel = profileRequestViewModel,
-                roomViewModel = roomViewModel,
                 loginViewModel = loginViewModel,
                 navController = navController,
                 categoriesViewModel = categoriesViewModel,
                 categoryViewModel = categoryViewModel,
                 searchViewModel = searchViewModel,
-                dataStoreViewModel = dataStoreViewModel
+                dataStoreViewModel = dataStoreViewModel,
+                favouriteViewModel = favouriteViewModel
             )
 
         }

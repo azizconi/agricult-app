@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,12 +27,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.agricult.R
 import com.example.agricult.ui.screen.ErrorInternetConnection
-import com.example.agricult.ui.screen.navigation.Screen
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.ProfileRequestViewModel
 import com.example.agricult.viewmodel.LoginViewModel
-import com.example.agricult.viewmodel.RoomViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,24 +40,13 @@ import java.util.*
 fun ProfileUserScreen(
     modifier: Modifier = Modifier,
     profileRequestViewModel: ProfileRequestViewModel,
-    roomViewModel: RoomViewModel,
     loginViewModel: LoginViewModel,
     navController: NavController,
     dataStoreViewModel: DataStoreViewModel
 ) {
 
 
-//    val getTokenList = roomViewModel.getToken().observeAsState()
-////    getTokenList.value?.forEach {
-//
-//        getTokenList.value?.get(getTokenList.value?.size?.minus(1)!!)?.accessToken?.let { it1 ->
-//            profileRequestViewModel.getShowProfileUser(
-//                token = it1,
-//                roomViewModel = roomViewModel
-//            )
-//        }
 
-//    }
 
     val isLock = remember {
         mutableStateOf(true)
@@ -69,14 +55,12 @@ fun ProfileUserScreen(
     val getToken = dataStoreViewModel.readFromDataStore.value
 
     if (isLock.value) {
-//        getTokenList.value?.get(getTokenList.value!!.size- 1)?.accessToken?.let { it ->
         if (getToken != null) {
             profileRequestViewModel.getShowProfileUser(
                 token = getToken,
-                roomViewModel = roomViewModel
             )
         }
-//        }
+
         isLock.value = false
     }
 
@@ -207,9 +191,6 @@ fun ProfileUserScreen(
                     ) {
                         MenuItems(
                             itemMenuProfileUser = itemMenuProfileUser[it],
-                            roomViewModel = roomViewModel,
-                            loginViewModel = loginViewModel,
-                            navController = navController,
                             dataStoreViewModel = dataStoreViewModel
                         )
 
@@ -221,13 +202,10 @@ fun ProfileUserScreen(
         } else {
 
             ErrorInternetConnection(
-                roomViewModel = roomViewModel,
-                profileRequestViewModel = profileRequestViewModel,
                 isLock = isLock.value,
 
             ) {
                  isLock.value = !isLock.value
-//                Log.e("TAG", "ProfileUserScreen: $it")
             }
         }
     }
@@ -290,9 +268,6 @@ fun ToolbarProfileUserScreen(modifier: Modifier = Modifier) {
 fun MenuItems(
     modifier: Modifier = Modifier,
     itemMenuProfileUser: ItemMenuProfileUser,
-    roomViewModel: RoomViewModel,
-    loginViewModel: LoginViewModel,
-    navController: NavController,
     dataStoreViewModel: DataStoreViewModel
 ) {
     val openDialog = remember { mutableStateOf(false) }
@@ -301,13 +276,8 @@ fun MenuItems(
     if (openDialog.value) {
         AlertDialog(
             onDismissRequest = { openDialog.value = false },
-            title = { Text(text = "AlertDialog", color = Color.Black) },
-            text = {
-                Text(
-                    text = "Hello Friends! This is Our Alert Dialog...",
-                    color = Color.Black
-                )
-            },
+            title = { Text(text = "Вы действительно хотите выйти?", color = Color.Black) },
+
 
             confirmButton = {
 
@@ -317,7 +287,7 @@ fun MenuItems(
 
                         dataStoreViewModel.clearDataStore()
                     }) {
-                    Text(text = "Confirm", color = Color.Black)
+                    Text(text = "Да", color = PrimaryColorGreen)
                 }
 
             },
@@ -325,12 +295,11 @@ fun MenuItems(
                 TextButton(
                     onClick = {
                         openDialog.value = false
-                        Toast.makeText(context, "Dismiss Button Click", Toast.LENGTH_SHORT).show()
                     }) {
-                    Text(text = "Dismiss", color = Color.Black)
+                    Text(text = "Нет", color = PrimaryColorGreen)
                 }
             },
-            backgroundColor = Color.Green,
+            backgroundColor = Color.White,
             contentColor = Color.White
         )
     }
@@ -343,7 +312,12 @@ fun MenuItems(
             .fillMaxWidth()
             .height(60.dp)
             .clickable {
-                openDialog.value = true
+//                openDialog.value = true
+                if (itemMenuProfileUser.title == "Выход"){
+                    openDialog.value = true
+                } else {
+
+                }
             }
     ) {
 

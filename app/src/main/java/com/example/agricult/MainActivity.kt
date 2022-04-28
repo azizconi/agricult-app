@@ -20,11 +20,12 @@ import java.util.prefs.Preferences
 
 class MainActivity : ComponentActivity() {
     private val loginViewModel by viewModels<LoginViewModel>()
-    private val roomViewModel by viewModels<RoomViewModel>()
+
     private val profileRequestViewModel by viewModels<ProfileRequestViewModel>()
     private val categoriesViewModel by viewModels<CategoriesViewModel>()
     private val categoryViewModel by viewModels<CategoryViewModel>()
     private val searchViewModel by viewModels<SearchViewModel>()
+    private val favouriteViewModel by viewModels<FavouriteViewModel>()
 
     private val dataStoreViewModel by viewModels<DataStoreViewModel>()
 
@@ -36,12 +37,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             Navigation(
                 loginViewModel = loginViewModel,
-                roomViewModel = roomViewModel,
                 profileRequestViewModel = profileRequestViewModel,
                 categoriesViewModel = categoriesViewModel,
                 categoryViewModel = categoryViewModel,
                 searchViewModel = searchViewModel,
-                dataStoreViewModel = dataStoreViewModel
+                dataStoreViewModel = dataStoreViewModel,
+                favouriteViewModel = favouriteViewModel
             )
         }
 

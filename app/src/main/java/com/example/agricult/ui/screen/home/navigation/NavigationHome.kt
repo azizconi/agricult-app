@@ -1,15 +1,21 @@
 package com.example.agricult.ui.screen.home.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.example.agricult.models.addAds.AddAds
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncement
+import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncementSecondScreen
 import com.example.agricult.ui.screen.home.categories.Categories
 import com.example.agricult.ui.screen.home.categories.category.CategoryScreen
 import com.example.agricult.ui.screen.home.favorites.FavoritesScreen
 import com.example.agricult.ui.screen.home.profileUser.ProfileUserScreen
+import com.example.agricult.ui.screen.home.search.SearchScreen
 import com.example.agricult.viewmodel.*
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -18,13 +24,13 @@ import java.nio.charset.StandardCharsets
 fun NavigationHome(
     navHostController: NavHostController,
     profileRequestViewModel: ProfileRequestViewModel,
-    roomViewModel: RoomViewModel,
     loginViewModel: LoginViewModel,
     navController: NavController,
     categoriesViewModel: CategoriesViewModel,
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
-    dataStoreViewModel: DataStoreViewModel
+    dataStoreViewModel: DataStoreViewModel,
+    favouriteViewModel: FavouriteViewModel
 ) {
     NavHost(navController = navHostController, startDestination = "categories") {
         composable("categories") {
@@ -32,24 +38,32 @@ fun NavigationHome(
 
             Categories(
                 categoriesViewModel = categoriesViewModel,
-                roomViewModel = roomViewModel,
                 categoryViewModel = categoryViewModel,
                 navHostController = navHostController,
                 searchViewModel = searchViewModel,
                 dataStoreViewModel = dataStoreViewModel
-            )
+            ) {
+
+            }
         }
         composable("add_screen") {
-            AddAnnouncement(dataStoreViewModel = dataStoreViewModel)
+            AddAnnouncement(
+                navHostController = navHostController,
+                categoriesViewModel = categoriesViewModel,
+                profileRequestViewModel = profileRequestViewModel,
+                dataStoreViewModel = dataStoreViewModel
+            )
         }
         composable("favorites_screen") {
-            FavoritesScreen(dataStoreViewModel = dataStoreViewModel)
+            FavoritesScreen(
+                dataStoreViewModel = dataStoreViewModel,
+                favouriteViewModel = favouriteViewModel
+            )
         }
 
         composable("profile_user_screen") {
             ProfileUserScreen(
                 profileRequestViewModel = profileRequestViewModel,
-                roomViewModel = roomViewModel,
                 loginViewModel = loginViewModel,
                 navController = navController,
                 dataStoreViewModel = dataStoreViewModel
@@ -58,17 +72,48 @@ fun NavigationHome(
 
         composable(
             "category_screen?id={id}",
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
         ) {
-//            URLEncoder.encode("category_screen/{id}", StandardCharsets.UTF_8.toString())
-
 
             val id = it.arguments?.getString("id")
 
             CategoryScreen(
                 idCategory = id!!,
                 categoryViewModel = categoryViewModel,
-                dataStoreViewModel = dataStoreViewModel
+                dataStoreViewModel = dataStoreViewModel,
+                favouriteViewModel = favouriteViewModel,
+                searchViewModel = searchViewModel,
+                navHostController = navHostController
             )
+        }
+
+        composable(
+            "search_screen?query={query}",
+            arguments = listOf(navArgument("query") {
+                type = NavType.StringType
+            })) {
+
+            val query = it.arguments?.getString("query")
+
+            SearchScreen(
+                dataStoreViewModel = dataStoreViewModel,
+                searchViewModel = searchViewModel,
+                favouriteViewModel = favouriteViewModel,
+                navHostController = navHostController,
+                query = query.toString()
+            )
+        }
+
+
+        composable("addAdsSecondScreen?data={data}") {
+            val data =
+                navHostController.previousBackStackEntry?.arguments?.getParcelable<AddAds>("data")
+
+
+            Log.e("TAG", "NavigationHome: $data")
+//            if (data != null) {
+            AddAnnouncementSecondScreen(data = data, navHostController = navHostController)
+//            }
         }
 
     }

@@ -25,14 +25,14 @@ import com.example.agricult.viewmodel.*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
-    roomViewModel: RoomViewModel,
     profileRequestViewModel: ProfileRequestViewModel,
     loginViewModel: LoginViewModel,
     navController: NavController,
     categoriesViewModel: CategoriesViewModel,
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
-    dataStoreViewModel: DataStoreViewModel
+    dataStoreViewModel: DataStoreViewModel,
+    favouriteViewModel: FavouriteViewModel
 ) {
     val navHostController = rememberNavController()
 
@@ -77,14 +77,14 @@ fun HomeScreen(
     ) {
         NavigationHome(
             navController = navController,
-            roomViewModel = roomViewModel,
             profileRequestViewModel = profileRequestViewModel,
             loginViewModel = loginViewModel,
             navHostController = navHostController,
             categoriesViewModel = categoriesViewModel,
             categoryViewModel = categoryViewModel,
             searchViewModel = searchViewModel,
-            dataStoreViewModel = dataStoreViewModel
+            dataStoreViewModel = dataStoreViewModel,
+            favouriteViewModel = favouriteViewModel
         )
     }
 }

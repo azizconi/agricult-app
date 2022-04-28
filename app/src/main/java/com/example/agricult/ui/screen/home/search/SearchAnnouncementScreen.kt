@@ -1,4 +1,4 @@
-package com.example.agricult.ui.screen.home.announcementItem
+package com.example.agricult.ui.screen.home.search
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -9,7 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,25 +21,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.agricult.R
-import com.example.agricult.models.category.Data
+import com.example.agricult.models.search.Data
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextPalleteGrey
-import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.FavouriteViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
-
 @Composable
-fun AnnouncementItemScreen(
+fun SearchAnnouncementScreen(
     modifier: Modifier = Modifier,
-    categoryModel: List<Data>,
+    searchModel: List<Data>,
     dataStoreViewModel: DataStoreViewModel,
     favouriteViewModel: FavouriteViewModel
 ) {
 
 
-    Log.e("TAG", "AnnouncementItemScreen: ${categoryModel.size}")
+    Log.e("TAG", "AnnouncementItemScreen: ${searchModel.size}")
 
 
     LazyColumn(
@@ -48,10 +48,10 @@ fun AnnouncementItemScreen(
             .padding(bottom = 60.dp),
 
         ) {
-        items(categoryModel.size) {
+        items(searchModel.size) {
 
             AnnouncementItems(
-                data = categoryModel[it],
+                data = searchModel[it],
                 dataStoreViewModel = dataStoreViewModel,
                 favouriteViewModel = favouriteViewModel
             )
@@ -83,12 +83,12 @@ fun AnnouncementItems(
         mutableStateOf(false)
     }
 
+
     val getToken = remember {
         mutableStateOf("")
     }
 
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
-
 
     Row(
 
@@ -171,7 +171,6 @@ fun AnnouncementItems(
                                         getToken.value,
                                         data.id
                                     )
-                                    Log.e("TAG", "AnnouncementItems: включить", )
                                     data.is_favorite = true
                                 } else {
                                     favouriteViewModel.deleteFavoriteStore(
@@ -179,7 +178,6 @@ fun AnnouncementItems(
                                         data.id
                                     )
                                     data.is_favorite = false
-                                    Log.e("TAG", "AnnouncementItems: выключить", )
                                 }
 
                                 if (!data.is_favorite) {

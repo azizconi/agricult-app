@@ -1,96 +1,156 @@
-package com.example.agricult.ui.screen.home.categories
+package com.example.agricult.ui.screen.home.search
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.agricult.R
-import com.example.agricult.models.categories.CategoriesModel
+import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
+import com.example.agricult.ui.screen.home.categories.category.FilterScreen
+import com.example.agricult.ui.screen.home.categories.category.UnderSearchButtons
 import com.example.agricult.ui.theme.PrimaryColorGreen
-import com.example.agricult.viewmodel.*
+import com.example.agricult.viewmodel.DataStoreViewModel
+import com.example.agricult.viewmodel.FavouriteViewModel
+import com.example.agricult.viewmodel.SearchViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
+
 @Composable
-fun Categories(
-    categoriesViewModel: CategoriesViewModel,
-    modifier: Modifier = Modifier,
-    categoryViewModel: CategoryViewModel,
-    navHostController: NavHostController,
-    searchViewModel: SearchViewModel,
+fun SearchScreen(
     dataStoreViewModel: DataStoreViewModel,
-    params: (query: String) -> Unit
+    searchViewModel: SearchViewModel,
+    favouriteViewModel: FavouriteViewModel,
+    navHostController: NavHostController,
+    query: String
 ) {
 
     val getToken = remember {
         mutableStateOf("")
     }
 
-
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
+    Log.e("TAG", "SearchScreen: $query query")
 
 
-    categoriesViewModel.getCategoriesRequest(
-        getToken.value,
-        dataStoreViewModel = dataStoreViewModel
-    )
-    val getCategoriesModel = categoriesViewModel.getCategoriesModel.value
+    if (query.isNotEmpty() || query != "") {
+
+    }
+
+
+    var expandedAnimation by remember {
+        mutableStateOf(false)
+    }
+
+    var orderByData by remember {
+        mutableStateOf("desc")
+    }
+
+    var minPriceByData by remember {
+        mutableStateOf("")
+    }
+
+    var maxPriceByData by remember {
+        mutableStateOf("")
+    }
+
+    var onClickFilterButtonData by remember {
+        mutableStateOf(false)
+    }
+
+    var searchText by remember {
+        mutableStateOf("")
+    }
+
+    searchText = query
 
 
     Column {
-        CategoriesToolbar(
-            param = {
-                params(it)
-            },
+        SearchToolbar(
             searchViewModel = searchViewModel,
             getToken = getToken.value,
             navHostController = navHostController
-        )
-
-        Column(
-            modifier = modifier
-                .padding(start = 16.dp, end = 16.dp)
-
         ) {
-            LazyColumn {
-                items(getCategoriesModel.size) {
-                    CategoriesItem(
-                        categoriesModel = getCategoriesModel[it],
-                        categoryViewModel = categoryViewModel,
-                        getToken = getToken.value,
-                        navHostController = navHostController
-                    )
-                }
+
+        }
+        UnderSearchButtons { click, orderBy, clickSortingButton ->
+            expandedAnimation = click
+            orderByData = orderBy
+
+            if (clickSortingButton) {
+                searchViewModel.getSearchAnnouncement(
+                    query = searchText,
+                    token = getToken.value,
+                    orderBy = "desc",
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                    page = 1
+                )
+            } else {
+                searchViewModel.getSearchAnnouncement(
+                    query = searchText,
+                    token = getToken.value,
+                    orderBy = "asc",
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                    page = 1
+                )
+            }
+
+
+        }
+        FilterScreen(
+            onClickFilter = expandedAnimation,
+            navHostController = navHostController,
+
+        ) { minPrice, maxPrice, onClickSearchFilterButton ->
+            minPriceByData = minPrice
+            maxPriceByData = maxPrice
+
+            onClickFilterButtonData = onClickSearchFilterButton
+
+            if (onClickFilterButtonData) {
+                searchViewModel.getSearchAnnouncement(
+                    query = searchText,
+                    token = dataStoreViewModel.readFromDataStore.value.toString(),
+                    priceFrom = minPriceByData.toInt(),
+                    priceTo = maxPriceByData.toInt(),
+                    orderBy = orderByData,
+                    page = 1
+                )
             }
 
         }
+
+        SearchAnnouncementScreen(
+            searchModel = searchViewModel.getSearchModel.value,
+            favouriteViewModel = favouriteViewModel,
+            dataStoreViewModel = dataStoreViewModel
+        )
+
+
     }
+
 }
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CategoriesToolbar(
+fun SearchToolbar(
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
     getToken: String,
@@ -107,10 +167,7 @@ fun CategoriesToolbar(
                 }, searchViewModel = searchViewModel,
                 getToken = getToken,
                 navHostController = navHostController
-            ) { onClick ->
-
-
-            }
+            )
         },
         backgroundColor = PrimaryColorGreen,
         modifier = modifier
@@ -122,7 +179,6 @@ fun CategoriesToolbar(
 
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBar(
@@ -131,7 +187,6 @@ fun SearchBar(
     getToken: String,
     navHostController: NavHostController,
     onSearchClicked: (String) -> Unit,
-    params: (onClick: Boolean) -> Unit
 ) {
 
     var text by remember {
@@ -218,9 +273,6 @@ fun SearchBar(
                                     page = 1
                                 )
 
-                                navHostController.navigate("search_screen?query=$text")
-
-                                params(onClickSearchButton)
 
                                 keyboardController?.hide()
 
@@ -230,7 +282,7 @@ fun SearchBar(
 
                         }) {
                         Icon(
-                            painter = rememberCoilPainter(request = R.drawable.search),
+                            painter = rememberCoilPainter(request = com.example.agricult.R.drawable.search),
                             contentDescription = "SearchBarIcon",
                             tint = Color(0xff999999)
                         )
@@ -239,86 +291,5 @@ fun SearchBar(
                 }
             },
         )
-    }
-}
-
-
-@Composable
-fun CategoriesItem(
-    modifier: Modifier = Modifier,
-    categoriesModel: CategoriesModel,
-    categoryViewModel: CategoryViewModel,
-    getToken: String,
-    navHostController: NavHostController
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-//            .height(70.dp)
-            .drawBehind {
-                val strokeWidth = 0.5f * density
-                val y = size.height - strokeWidth / 2
-
-                drawLine(
-                    Color.LightGray,
-                    Offset(0f, y),
-                    Offset(size.width, y),
-                    strokeWidth
-                )
-            }
-            .clickable {
-
-                categoryViewModel.getCategoryRequest(
-                    token = getToken,
-                    categoryId = categoriesModel.id!!,
-                    priceFrom = 0,
-                    priceTo = 1000000,
-                    orderBy = "desc",
-                    page = 1
-                )
-
-
-                navHostController.navigate("category_screen?id=${categoriesModel.id}")
-
-
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Image(
-            painter = rememberCoilPainter(request = "http://api.agricult.colibri.tj/public/storage/${categoriesModel.icon}"),
-            contentDescription = categoriesModel.title,
-            modifier = modifier
-                .width(44.dp)
-                .height(44.dp)
-        )
-
-        Column(
-            modifier = modifier.padding(start = 16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = categoriesModel.title.toString(),
-                fontSize = 18.sp,
-                fontFamily = FontFamily(
-                    Font(
-                        R.font.roboto_medium
-                    )
-                ),
-                modifier = modifier.padding(top = 8.dp, bottom = 4.5.dp)
-            )
-
-            Text(
-                text = "${categoriesModel.quantity} обявлений", fontSize = 12.sp,
-                fontFamily = FontFamily(
-                    Font(
-                        R.font.roboto_regular
-                    )
-                ),
-                modifier = modifier
-                    .padding(top = 4.5.dp, bottom = 8.dp)
-            )
-        }
-
     }
 }

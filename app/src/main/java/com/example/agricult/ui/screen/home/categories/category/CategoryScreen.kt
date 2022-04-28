@@ -19,15 +19,19 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
 import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
+import com.example.agricult.viewmodel.FavouriteViewModel
+import com.example.agricult.viewmodel.SearchViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
 
@@ -35,8 +39,10 @@ import com.google.accompanist.coil.rememberCoilPainter
 fun CategoryScreen(
     idCategory: String,
     categoryViewModel: CategoryViewModel,
-    dataStoreViewModel: DataStoreViewModel
-
+    dataStoreViewModel: DataStoreViewModel,
+    favouriteViewModel: FavouriteViewModel,
+    searchViewModel: SearchViewModel,
+    navHostController: NavHostController
 ) {
 
     var expandedAnimation by remember {
@@ -59,18 +65,28 @@ fun CategoryScreen(
         mutableStateOf(false)
     }
 
+    var searchText by remember {
+        mutableStateOf("")
+    }
 
 
+    val getToken = remember {
+        mutableStateOf("")
+    }
 
+
+    getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
     Column {
-        CategoriesToolbar()
-        UnderSearchButtons(
-            categoryViewModel = categoryViewModel,
-            getToken = dataStoreViewModel.readFromDataStore.value,
-            idCategory = idCategory,
-
-            ) { click, orderBy, clickSortingButton ->
+        CategoriesToolbar(
+            param = {
+                searchText = it
+            },
+            searchViewModel = searchViewModel,
+            getToken = getToken.value,
+            navHostController = navHostController
+        )
+        UnderSearchButtons { click, orderBy, clickSortingButton ->
             expandedAnimation = click
             orderByData = orderBy
 
@@ -93,22 +109,18 @@ fun CategoryScreen(
             }
 
 
-
         }
         FilterScreen(
             onClickFilter = expandedAnimation,
-            categoryViewModel = categoryViewModel,
-            getToken = dataStoreViewModel.readFromDataStore.value,
-            idCategory = idCategory,
-            orderBy = orderByData
+            navHostController = navHostController,
         ) { minPrice, maxPrice, onClickSearchFilterButton ->
             minPriceByData = minPrice
             maxPriceByData = maxPrice
 
             onClickFilterButtonData = onClickSearchFilterButton
 
-            Log.e("TAG", "CategoryScreen:102 $onClickFilterButtonData", )
-            if (onClickFilterButtonData){
+            Log.e("TAG", "CategoryScreen:102 $onClickFilterButtonData")
+            if (onClickFilterButtonData) {
                 categoryViewModel.getCategoryRequest(
                     token = dataStoreViewModel.readFromDataStore.value.toString(),
                     categoryId = idCategory.toInt(),
@@ -119,11 +131,12 @@ fun CategoryScreen(
             }
 
         }
-        AnnouncementItemScreen(categoryModel = categoryViewModel.getCategoryModel.value)
+        AnnouncementItemScreen(
+            categoryModel = categoryViewModel.getCategoryModel.value,
+            dataStoreViewModel = dataStoreViewModel,
+            favouriteViewModel = favouriteViewModel
+        )
     }
-
-
-
 
 
 }
@@ -132,13 +145,10 @@ fun CategoryScreen(
 @Composable
 fun UnderSearchButtons(
     modifier: Modifier = Modifier,
-    categoryViewModel: CategoryViewModel,
-    idCategory: String,
-    getToken: String? = null,
-    onClick: (clickFilter: Boolean, orderBy: String, onClickSortingButton: Boolean) -> Unit,
+    onClick: (clickFilter: Boolean, orderBy: String, expandedSortButton: Boolean) -> Unit,
 ) {
 
-    val orderByCategoryData by remember {
+    var orderByCategoryData by remember {
         mutableStateOf("desc")
     }
 
@@ -182,6 +192,7 @@ fun UnderSearchButtons(
 
 
 
+
                     iconSortButton = if (expandedSortButton) {
                         R.drawable.ic_sort_v1
                     } else {
@@ -189,21 +200,6 @@ fun UnderSearchButtons(
                     }
 
                     onClick(expandedFilterButton, orderByCategoryData, expandedSortButton)
-
-
-//                    if (expandedSortButton) {
-//                        categoryViewModel.getCategoryRequest(
-//                            categoryId = idCategory.toInt(),
-//                            token = getToken.toString(),
-//                            orderBy = "desc"
-//                        )
-//                    } else {
-//                        categoryViewModel.getCategoryRequest(
-//                            categoryId = idCategory.toInt(),
-//                            token = getToken.toString(),
-//                            orderBy = "asc"
-//                        )
-//                    }
 
 
                 },
@@ -239,7 +235,15 @@ fun UnderSearchButtons(
                 .clickable {
                     expandedFilterButton = !expandedFilterButton
 
+                    orderByCategoryData = if (expandedSortButton) {
+                        "desc"
+                    } else {
+                        "asc"
+                    }
+
                     onClick(expandedFilterButton, orderByCategoryData, expandedSortButton)
+
+
 
                     colorFilterButton = if (expandedFilterButton) {
                         PrimaryColorGreen
@@ -280,10 +284,8 @@ fun UnderSearchButtons(
 fun FilterScreen(
     modifier: Modifier = Modifier,
     onClickFilter: Boolean,
-    categoryViewModel: CategoryViewModel,
-    getToken: String? = null,
-    idCategory: String,
-    orderBy: String,
+    navHostController: NavHostController,
+
     params: (minPrice: String, maxPrice: String, onClickFilterButton: Boolean) -> Unit
 ) {
 
@@ -389,20 +391,15 @@ fun FilterScreen(
                     onClick = {
 
 
-                            onClickButtonSearchFilter = !onClickButtonSearchFilter
+                        onClickButtonSearchFilter = !onClickButtonSearchFilter
 
 
+//                        navHostController.navigate("search_screen?query=$searchText")
 
+                        params(minPrice, maxPrice, onClickButtonSearchFilter)
 
-//                        if (onClickButtonSearchFilter) {
-                            params(minPrice, maxPrice, onClickButtonSearchFilter)
-//                        } else {
-//                            params(minPrice, maxPrice, false)
-//                        }
-                        Log.e("TAG", "FilterScreen: $onClickButtonSearchFilter")
                         onClickButtonSearchFilter = false
 
-                        Log.e("TAG", "FilterScreen: $onClickButtonSearchFilter")
                     }
                 ) {
                     Text(
@@ -417,4 +414,3 @@ fun FilterScreen(
         }
     }
 }
-

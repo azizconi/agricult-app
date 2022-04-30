@@ -9,7 +9,7 @@ class RetrofitInstance {
         .addInterceptor { chain ->
             val original = chain.request()
             val requestBuilderForToken = original.newBuilder()
-                .method(original.method(), original.body())
+                .method(original.method, original.body)
             val requestToken = requestBuilderForToken.build()
             chain.proceed(requestToken)
         }.build()

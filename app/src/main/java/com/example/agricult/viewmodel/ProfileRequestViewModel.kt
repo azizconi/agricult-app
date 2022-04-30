@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.room.Update
 import com.example.agricult.models.errors.ErrorMessageLogin
 import com.example.agricult.models.profileShowResult.Data
 import com.example.agricult.models.profileShowResult.ProfileShowResult

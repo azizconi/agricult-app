@@ -1,17 +1,15 @@
 package com.example.agricult.ui.screen.home.user_info
 
 import android.app.DatePickerDialog
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberImagePainter
 import com.example.agricult.R
 import com.example.agricult.models.profileShowResult.Data
 import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
@@ -44,8 +43,11 @@ import com.example.agricult.ui.theme.TextFieldColor
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.ProfileRequestViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.io.IOException
 import java.util.*
 
 @Composable
@@ -182,45 +184,43 @@ fun UserInfoToolbar(
 @Composable
 fun SelectPhotoUser(
     profileRequestViewModel: ProfileRequestViewModel,
-    onSelectImage: (Uri) -> Unit
+    imageMultipartSend: (MultipartBody.Part) -> Unit
 ) {
-    var selectedImage by remember { mutableStateOf<Uri?>(null) }
-    val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-            selectedImage = uri
-        }
-
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-
-    val context = LocalContext.current
-
 
 
     PhotoProfile(
         profileRequestViewModel = profileRequestViewModel,
-        selectedImage = selectedImage,
-        onImageClick = {
-            launcher.launch("image/*")
-
-        },
-        onSelectImage = {
-            onSelectImage(it)
-        }
-    )
+    ) {
+        imageMultipartSend(it)
+    }
 }
-
 
 
 @Composable
 fun PhotoProfile(
     modifier: Modifier = Modifier,
     profileRequestViewModel: ProfileRequestViewModel,
-    selectedImage: Uri? = null,
-    onImageClick: () -> Unit,
-    onSelectImage: (Uri) -> Unit
+    imageMultipartSend: (MultipartBody.Part) -> Unit
 ) {
 
+
     val context = LocalContext.current
+
+    val getContentActivityResult = rememberGetContentActivityResult()
+    val file = getContentActivityResult.uri?.let { uri ->
+        getFileFromPath(uri, "profilePicture", context)
+    }
+
+    val requestBody = file?.asRequestBody("image/*".toMediaType())
+    val imageMultipart = requestBody?.let {
+        MultipartBody.Part.createFormData("media", file.name, it)
+    }
+
+
+
+    if (imageMultipart != null) {
+        imageMultipartSend(imageMultipart)
+    }
 
 
     val profileData = profileRequestViewModel.getShowUserData.value
@@ -238,26 +238,22 @@ fun PhotoProfile(
 
         ) {
 
-            if (selectedImage != null) {
-                Image(
-                    painter = rememberCoilPainter(request = selectedImage),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "user-photo",
-                    modifier = modifier
-                        .size(107.dp)
-                        .clip(shape = RoundedCornerShape(600.dp))
-                )
-                onSelectImage(selectedImage)
-            } else {
-                Image(
-                    painter = rememberCoilPainter(request = "http://api.agricult.colibri.tj/public/storage/${profileData.image}"),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "user-photo",
-                    modifier = modifier
-                        .size(107.dp)
-                        .clip(shape = RoundedCornerShape(600.dp))
-                )
-            }
+
+            Image(
+                painter = rememberImagePainter(
+                    data = getContentActivityResult.uri
+                        ?: "http://api.agricult.colibri.tj/public/storage/" + profileData.image,
+                    builder = {
+                        placeholder(R.drawable.search)
+                    }),
+                contentScale = ContentScale.Crop,
+                contentDescription = "user-photo",
+                modifier = modifier
+                    .size(107.dp)
+                    .clip(shape = RoundedCornerShape(600.dp))
+            )
+
+
 
 
             Box(
@@ -267,7 +263,8 @@ fun PhotoProfile(
                     .background(Color(0xff27AE60))
                     .align(Alignment.BottomEnd)
                     .clickable {
-                        onImageClick()
+//                        onImageClick()
+                        getContentActivityResult.launch("image/*")
                     }
             ) {
                 Image(
@@ -298,9 +295,6 @@ fun FormUserInfo(
     changedData: (Boolean) -> Unit
 ) {
 
-    var imageProfile by remember {
-        mutableStateOf<Uri?>(null)
-    }
 
     var imageFile by remember {
         mutableStateOf<File?>(null)
@@ -363,6 +357,9 @@ fun FormUserInfo(
         mutableStateOf(false)
     }
 
+    var imageMultipart by remember {
+        mutableStateOf<MultipartBody.Part?>(null)
+    }
 
     LazyColumn(
         modifier = modifier
@@ -371,14 +368,7 @@ fun FormUserInfo(
 
         item {
             SelectPhotoUser(profileRequestViewModel = profileRequestViewModel) {
-                imageProfile = it
-
-
-
-
-                imageFile = File(imageProfile.toString())
-                Log.e("TAG", "FormUserInfo: ${imageFile}")
-
+                imageMultipart = it
             }
         }
 
@@ -566,27 +556,21 @@ fun FormUserInfo(
                         .height(44.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
                     onClick = {
-                        if (imageFile != null) {
+
+                        if (imageMultipart != null) {
                             val updateDataUserProfile = UpdateProfileUserModel(
                                 name = name,
                                 surname = surname,
                                 phone = numberPhone,
                                 date_of_birth = date,
                                 address = address,
-                                media = listOf(
-                                    getFileFromPath(
-                                        uri = imageProfile!!,
-                                        name = imageProfile?.path.toString(),
-                                        context = context
-                                    )
-                                ),
+                                media = imageMultipart!!,
                             )
 
                             profileRequestViewModel.updateProfileRequest(
                                 token = getToken,
                                 updateProfileUserModel = updateDataUserProfile
                             )
-
                             navHostController.popBackStack()
                         } else {
                             val updateDataUserProfile = UpdateProfileUserModel(
@@ -594,14 +578,13 @@ fun FormUserInfo(
                                 surname = surname,
                                 phone = numberPhone,
                                 date_of_birth = date,
-                                address = address,
+                                address = address
                             )
 
                             profileRequestViewModel.updateProfileRequest(
                                 token = getToken,
                                 updateProfileUserModel = updateDataUserProfile
                             )
-
                             navHostController.popBackStack()
                         }
 
@@ -632,29 +615,6 @@ fun FormUserInfo(
     changedData(dataChange)
 
 
-}
-
-
-fun decodeUriToBitmap(context: Context, uri: Uri?): Bitmap {
-    return uri?.let { uriPath ->
-        context.contentResolver.openInputStream(uriPath).use { stream ->
-            BitmapFactory.decodeStream(stream)
-        }
-    } ?: throw IOException("Image not found.")
-}
-
-private fun File.writeBitmap(bitmap: Bitmap) {
-    outputStream().use { out ->
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out)
-        out.flush()
-    }
-}
-
-fun getFileFromPath(uri: Uri, name: String, context: Context): File {
-    val bitmap = decodeUriToBitmap(context, uri)
-    val file = File("${context.cacheDir}", "$name.jpeg")
-    file.writeBitmap(bitmap)
-    return file
 }
 
 

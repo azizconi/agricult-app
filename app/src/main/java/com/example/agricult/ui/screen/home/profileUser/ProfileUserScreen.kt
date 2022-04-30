@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.ui.screen.ErrorInternetConnection
 import com.example.agricult.ui.theme.PrimaryColorGreen
@@ -41,11 +42,9 @@ fun ProfileUserScreen(
     modifier: Modifier = Modifier,
     profileRequestViewModel: ProfileRequestViewModel,
     loginViewModel: LoginViewModel,
-    navController: NavController,
+    navHostController: NavHostController,
     dataStoreViewModel: DataStoreViewModel
 ) {
-
-
 
 
     val isLock = remember {
@@ -75,17 +74,26 @@ fun ProfileUserScreen(
             "Личная информация",
             Color(0xFFF2C94C),
             20,
-            20
+            20,
+            "user_info_screen"
         ),
         ItemMenuProfileUser(
             R.drawable.my_announcements,
             "Мои объявления",
             Color(0xFF27AE60),
             18,
-            16
+            16,
+            "my_announcements_screen"
         ),
-        ItemMenuProfileUser(R.drawable.contact_centre, "Контакт центр", Color(0xFF2D9CDB), 18, 16),
-        ItemMenuProfileUser(R.drawable.log_out, "Выход", Color(0xFFEB5757), 17, 18),
+        ItemMenuProfileUser(
+            R.drawable.contact_centre,
+            "Контакт центр",
+            Color(0xFF2D9CDB),
+            18,
+            16,
+            "contact_screen"
+        ),
+        ItemMenuProfileUser(R.drawable.log_out, "Выход", Color(0xFFEB5757), 17, 18, "log_out"),
     )
 
 
@@ -191,7 +199,8 @@ fun ProfileUserScreen(
                     ) {
                         MenuItems(
                             itemMenuProfileUser = itemMenuProfileUser[it],
-                            dataStoreViewModel = dataStoreViewModel
+                            dataStoreViewModel = dataStoreViewModel,
+                            navHostController = navHostController
                         )
 
                     }
@@ -204,8 +213,8 @@ fun ProfileUserScreen(
             ErrorInternetConnection(
                 isLock = isLock.value,
 
-            ) {
-                 isLock.value = !isLock.value
+                ) {
+                isLock.value = !isLock.value
             }
         }
     }
@@ -231,33 +240,7 @@ fun ToolbarProfileUserScreen(modifier: Modifier = Modifier) {
             }
 
         },
-        navigationIcon = {
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = rememberCoilPainter(request = R.drawable.info),
-                    contentDescription = "menu",
-                    modifier = modifier
-                        .size(20.dp),
-                    tint = Color.White
 
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = {
-
-            }) {
-                Icon(
-                    painter = rememberCoilPainter(request = R.drawable.drop_menu),
-                    contentDescription = "menu",
-                    modifier = Modifier
-                        .size(18.dp),
-                    tint = Color.White
-
-
-                )
-            }
-        },
         backgroundColor = PrimaryColorGreen,
         modifier = modifier.height(56.dp)
     )
@@ -268,10 +251,10 @@ fun ToolbarProfileUserScreen(modifier: Modifier = Modifier) {
 fun MenuItems(
     modifier: Modifier = Modifier,
     itemMenuProfileUser: ItemMenuProfileUser,
-    dataStoreViewModel: DataStoreViewModel
+    dataStoreViewModel: DataStoreViewModel,
+    navHostController: NavHostController
 ) {
     val openDialog = remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     if (openDialog.value) {
         AlertDialog(
@@ -312,11 +295,10 @@ fun MenuItems(
             .fillMaxWidth()
             .height(60.dp)
             .clickable {
-//                openDialog.value = true
-                if (itemMenuProfileUser.title == "Выход"){
+                if (itemMenuProfileUser.title == "Выход") {
                     openDialog.value = true
                 } else {
-
+                    navHostController.navigate(itemMenuProfileUser.route)
                 }
             }
     ) {

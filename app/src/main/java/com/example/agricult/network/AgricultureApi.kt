@@ -1,5 +1,7 @@
 package com.example.agricult.network
 
+import android.app.DatePickerDialog
+import android.graphics.Bitmap
 import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.contacts.ContactModel
@@ -8,7 +10,9 @@ import com.example.agricult.models.profileShowResult.ProfileShowResult
 import com.example.agricult.models.requests.LoginUserModel
 import com.example.agricult.models.requests.RegistrationUser
 import com.example.agricult.models.search.SearchModel
+import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
 import com.example.agricult.viewmodel.SearchViewModel
+import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -21,6 +25,7 @@ interface AgricultureApi {
     fun login(
         @Body authenticationUser: LoginUserModel
     ): Call<AuthResult>
+
 
 
     @POST("api/auth/register")
@@ -80,15 +85,11 @@ interface AgricultureApi {
     ): Call<String>
 
 
-
-
-
     @DELETE("api/profile/favorites/{favorite_id}")
     fun deleteFavoritesStore(
         @Header(value = "Authorization") token: String,
         @Path("favorite_id") favoriteId: Int
     ): Call<String>
-
 
 
     @GET("api/profile/center")
@@ -97,6 +98,11 @@ interface AgricultureApi {
     ): Call<ContactModel>
 
 
+    @POST("api/profile/update?_method=PUT")
+    fun updateUserProfileData(
+        @Header(value = "Authorization") token: String,
+        @Body updateProfileUserModel: UpdateProfileUserModel
+    ): Call<String>
 
 
 }

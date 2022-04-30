@@ -124,7 +124,8 @@ fun AddAnnouncementSecondScreen(
                     text = "Подать объявление",
                     fontSize = 18.sp,
                     fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                    color = Color.White
+                    color = Color.White,
+
                 )
             },
             navigationIcon = {
@@ -385,77 +386,79 @@ fun PickImageFromGallery(
 
 }
 
-//@Composable
-//fun PickImageFromGalleryBottom(
-//    modifier: Modifier = Modifier,
-//    convertData: (bitmapImage: Bitmap) -> Unit,
-//) {
-//
-//    val context = LocalContext.current
-//
-//    var imageUrl by remember { mutableStateOf<Uri?>(null) }
-//
-//    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-//
-//    val launcher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent()
-//    ) { uri: Uri? ->
-//        imageUrl = uri
-//    }
-//
-//
-//
-//
-//
-//    Column(
-//        modifier = modifier
-//            .width(100.dp)
-//            .height(100.dp)
-//
-//            .border(
-//                1.dp,
-//                Color(0xffD4D4D4),
-//                shape = RoundedCornerShape(4.dp)
-//            )
-//            .padding(10.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//
-//        imageUrl?.let {
-//            if (Build.VERSION.SDK_INT < 28) {
-//                bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-//
-//            } else {
-//                val source = ImageDecoder.createSource(context.contentResolver, it)
-//                bitmap.value = ImageDecoder.decodeBitmap(source)
-//            }
-//
-//
-//            bitmap.value?.let { bitmap ->
-//                Image(
-//                    bitmap = bitmap.asImageBitmap(),
-//                    contentDescription = "Gallery Image",
-//                    modifier = Modifier
-//                        .padding(10.dp)
-//                )
-//            }
-//        }
-//
-//        if (bitmap.value != null) {
-//            convertData(bitmap.value!!)
-//        }
-//
-//        Image(
-//            painter = rememberCoilPainter(request = R.drawable.addphoto),
-//            contentDescription = "add photo",
-//            modifier = Modifier
-//                .size(36.dp)
-//                .clickable { launcher.launch("image/*") }
-//        )
-//
-//    }
-//
-//
-//}
+@Composable
+fun PickImageFromGalleryBottom(
+    modifier: Modifier = Modifier,
+    convertData: (bitmapImage: Bitmap) -> Unit,
+) {
+
+    val context = LocalContext.current
+
+    var imageUrl by remember { mutableStateOf<Uri?>(null) }
+
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUrl = uri
+    }
+
+
+
+
+
+    Column(
+        modifier = modifier
+            .width(100.dp)
+            .height(100.dp)
+
+            .border(
+                1.dp,
+                Color(0xffD4D4D4),
+                shape = RoundedCornerShape(4.dp)
+            )
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        imageUrl?.let {
+            if (Build.VERSION.SDK_INT < 28) {
+                bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, it)
+                bitmap.value = ImageDecoder.decodeBitmap(source)
+            }
+
+
+            bitmap.value?.let { bitmap ->
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Gallery Image",
+                    modifier = Modifier
+                        .padding(10.dp)
+                )
+
+                Log.e("TAG", "PickImageFromGalleryBottom: ${bitmap.asImageBitmap()}",)
+            }
+        }
+
+        if (bitmap.value != null) {
+            convertData(bitmap.value!!)
+        }
+
+        Image(
+            painter = rememberCoilPainter(request = R.drawable.addphoto),
+            contentDescription = "add photo",
+            modifier = Modifier
+                .size(36.dp)
+                .clickable { launcher.launch("image/*") }
+        )
+
+    }
+
+
+}
 

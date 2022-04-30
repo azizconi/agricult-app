@@ -25,7 +25,8 @@ fun Navigation(
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
     dataStoreViewModel: DataStoreViewModel,
-    favouriteViewModel: FavouriteViewModel
+    favouriteViewModel: FavouriteViewModel,
+    contactViewModel: ContactViewModel
 ) {
     val navController = rememberNavController()
 
@@ -63,7 +64,7 @@ fun Navigation(
                 LoginScreen(
                     loginViewModel = loginViewModel,
                     dataStoreViewModel = dataStoreViewModel
-                ) 
+                )
 
 
             }
@@ -71,7 +72,11 @@ fun Navigation(
         }
 
         composable(route = Screen.RegisterScreen.route) {
-            RegisterScreen(navController = navController, loginViewModel = loginViewModel)
+            RegisterScreen(
+                navController = navController,
+                loginViewModel = loginViewModel,
+                dataStoreViewModel = dataStoreViewModel
+            )
         }
 
         composable(route = Screen.HomeScreen.route) {
@@ -83,7 +88,8 @@ fun Navigation(
                 categoryViewModel = categoryViewModel,
                 searchViewModel = searchViewModel,
                 dataStoreViewModel = dataStoreViewModel,
-                favouriteViewModel = favouriteViewModel
+                favouriteViewModel = favouriteViewModel,
+                contactViewModel = contactViewModel
             )
 
         }

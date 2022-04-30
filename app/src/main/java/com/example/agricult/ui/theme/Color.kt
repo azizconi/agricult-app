@@ -11,3 +11,5 @@ val PrimaryColorGreen = Color(0xFF27AE60)
 val TextFieldColor = Color(0xFFEEEDED)
 
 val TextPalleteGrey = Color(0xff999999)
+
+val TextFieldBorder = Color(0xffD4D4D4)

@@ -4,9 +4,11 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.room.Update
 import com.example.agricult.models.errors.ErrorMessageLogin
 import com.example.agricult.models.profileShowResult.Data
 import com.example.agricult.models.profileShowResult.ProfileShowResult
+import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
 import com.example.agricult.network.RetrofitInstance
 import com.google.gson.GsonBuilder
 import retrofit2.Call
@@ -71,6 +73,25 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
                 }
 
             })
+    }
+
+
+    fun updateProfileRequest(token: String, updateProfileUserModel: UpdateProfileUserModel) {
+        RetrofitInstance().api().updateUserProfileData(
+            token = "Bearer $token",
+            updateProfileUserModel = updateProfileUserModel
+        ).enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    Log.e("TAG", "onResponse: ${response.body()}", )
+                }
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.e("TAG", "onResponse: ${t.message}", )
+            }
+
+        })
     }
 
 }

@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
     private val categoryViewModel by viewModels<CategoryViewModel>()
     private val searchViewModel by viewModels<SearchViewModel>()
     private val favouriteViewModel by viewModels<FavouriteViewModel>()
+    private val contactViewModel by viewModels<ContactViewModel>()
 
     private val dataStoreViewModel by viewModels<DataStoreViewModel>()
 
@@ -42,7 +43,8 @@ class MainActivity : ComponentActivity() {
                 categoryViewModel = categoryViewModel,
                 searchViewModel = searchViewModel,
                 dataStoreViewModel = dataStoreViewModel,
-                favouriteViewModel = favouriteViewModel
+                favouriteViewModel = favouriteViewModel,
+                contactViewModel = contactViewModel
             )
         }
 

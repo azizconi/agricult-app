@@ -13,9 +13,11 @@ import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncement
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncementSecondScreen
 import com.example.agricult.ui.screen.home.categories.Categories
 import com.example.agricult.ui.screen.home.categories.category.CategoryScreen
+import com.example.agricult.ui.screen.home.contact.ContactScreen
 import com.example.agricult.ui.screen.home.favorites.FavoritesScreen
 import com.example.agricult.ui.screen.home.profileUser.ProfileUserScreen
 import com.example.agricult.ui.screen.home.search.SearchScreen
+import com.example.agricult.ui.screen.home.user_info.UserInfoScreen
 import com.example.agricult.viewmodel.*
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -30,7 +32,8 @@ fun NavigationHome(
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
     dataStoreViewModel: DataStoreViewModel,
-    favouriteViewModel: FavouriteViewModel
+    favouriteViewModel: FavouriteViewModel,
+    contactViewModel: ContactViewModel
 ) {
     NavHost(navController = navHostController, startDestination = "categories") {
         composable("categories") {
@@ -65,7 +68,7 @@ fun NavigationHome(
             ProfileUserScreen(
                 profileRequestViewModel = profileRequestViewModel,
                 loginViewModel = loginViewModel,
-                navController = navController,
+                navHostController = navHostController,
                 dataStoreViewModel = dataStoreViewModel
             )
         }
@@ -91,7 +94,8 @@ fun NavigationHome(
             "search_screen?query={query}",
             arguments = listOf(navArgument("query") {
                 type = NavType.StringType
-            })) {
+            })
+        ) {
 
             val query = it.arguments?.getString("query")
 
@@ -111,10 +115,28 @@ fun NavigationHome(
 
 
             Log.e("TAG", "NavigationHome: $data")
-//            if (data != null) {
+
             AddAnnouncementSecondScreen(data = data, navHostController = navHostController)
-//            }
+
+        }
+
+
+        composable("contact_screen") {
+            ContactScreen(
+                navHostController = navHostController,
+                contactViewModel = contactViewModel,
+                dataStoreViewModel = dataStoreViewModel
+            )
+        }
+
+        composable("user_info_screen") {
+            UserInfoScreen(
+                navHostController = navHostController,
+                dataStoreViewModel = dataStoreViewModel,
+                profileRequestViewModel = profileRequestViewModel
+            )
         }
 
     }
+
 }

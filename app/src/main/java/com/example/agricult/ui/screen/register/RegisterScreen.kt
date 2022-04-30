@@ -1,6 +1,7 @@
 package com.example.agricult.ui.screen.register
 
 import android.app.DatePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import com.example.agricult.models.requests.RegistrationUser
 import com.example.agricult.ui.screen.login.OutlinedTextFieldBackground
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
+import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.LoginViewModel
 import java.util.*
 
@@ -41,7 +43,8 @@ import java.util.*
 fun RegisterScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    dataStoreViewModel: DataStoreViewModel
 ) {
 
     var name by remember {
@@ -88,22 +91,26 @@ fun RegisterScreen(
     day = calendar.get(Calendar.DAY_OF_MONTH)
     calendar.time = Date()
 
+    var filterMonth = ""
 
     val date = remember { mutableStateOf("") }
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$dayOfMonth/${month + 1}/$year"
+
+            filterMonth = if (month in 1..9) {
+                "0"
+            } else {
+                ""
+            }
+
+
+            date.value = "$year-${filterMonth + (month + 1)}-$dayOfMonth"
         }, year, month, day
 
     )
-    val dateInRequest = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$year-${month + 1}-$dayOfMonth"
-        }, year, month, day
 
-    )
+
 
     Column(
         modifier = modifier
@@ -174,7 +181,9 @@ fun RegisterScreen(
                 singleLine = true,
                 value = numberPhone,
                 onValueChange = {
-                    numberPhone = it
+                    if (charPhoneNumber <= 9) {
+                        numberPhone = it
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = modifier
@@ -212,6 +221,7 @@ fun RegisterScreen(
                     .height(55.dp)
                     .clickable {
                         datePickerDialog.show()
+
                     },
 
                 textStyle = TextStyle(fontSize = 16.sp),
@@ -363,7 +373,7 @@ fun RegisterScreen(
             onClick = {
                 if (name == "" || name.isEmpty() &&
                     surname == "" || surname.isEmpty() &&
-                    numberPhone == "" || numberPhone.isEmpty() &&
+                    numberPhone == "" || numberPhone.isEmpty() && numberPhone.length != charPhoneNumber &&
                     date.value == "" || date.value.isEmpty() &&
                     address == "" || address.isEmpty() &&
                     password == "" || password.isEmpty() &&
@@ -381,12 +391,14 @@ fun RegisterScreen(
                                 name = name,
                                 surname = surname,
                                 phone = "+992$numberPhone",
-                                date_of_birth = dateInRequest.toString(),
+                                date_of_birth = date.value,
                                 address = address,
                                 password = password,
                                 confirm_password = confirmPassword,
-                            )
+                            ),
+                            dataStoreViewModel = dataStoreViewModel
                         )
+
                     } else {
                         Toast.makeText(
                             context,

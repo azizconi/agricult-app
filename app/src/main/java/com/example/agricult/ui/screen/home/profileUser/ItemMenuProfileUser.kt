@@ -8,5 +8,6 @@ data class ItemMenuProfileUser(
     val title: String,
     val color: Color,
     val width: Int,
-    val height: Int
+    val height: Int,
+    val route: String
 )

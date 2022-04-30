@@ -15,7 +15,7 @@ class ContactViewModel(application: Application): AndroidViewModel(application) 
 
 
     private var setContactModel: List<Data> = emptyList()
-    var getFavouriteAnnouncementModel = mutableStateOf(setContactModel)
+    var getContactAnnouncementModel = mutableStateOf(setContactModel)
 
 
     fun getContacts(token: String) {
@@ -29,7 +29,7 @@ class ContactViewModel(application: Application): AndroidViewModel(application) 
 
                         response.body().let {
                             if (it != null) {
-                                getFavouriteAnnouncementModel.value = it.data
+                                getContactAnnouncementModel.value = it.data
                             }
                         }
                     }

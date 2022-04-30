@@ -98,19 +98,40 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun getRegisterRequest(registrationUser: RegistrationUser) {
+    fun getRegisterRequest(
+        registrationUser: RegistrationUser,
+        dataStoreViewModel: DataStoreViewModel
+    ) {
 
-        return setRegisterRequest(registrationUser = registrationUser)
+        return setRegisterRequest(
+            registrationUser = registrationUser,
+            dataStoreViewModel = dataStoreViewModel
+        )
     }
 
 
-    private fun setRegisterRequest(registrationUser: RegistrationUser) {
-        RetrofitInstance().api().register(registrationUser = registrationUser)
+    private fun setRegisterRequest(
+        registrationUser: RegistrationUser,
+        dataStoreViewModel: DataStoreViewModel
+    ) {
+        RetrofitInstance().api().register(
+            registrationUser = registrationUser
+        )
             .enqueue(object : Callback<AuthResult> {
                 override fun onResponse(call: Call<AuthResult>, response: Response<AuthResult>) {
                     if (response.isSuccessful) {
+                        isSuccessLoading.value = true
+
                         response.body()?.let {
                             checkInternet.value = false
+
+
+                        }
+
+                        response.body()?.data.let {
+                            if (it != null) {
+                                dataStoreViewModel.saveToDataStore(it.accessToken.toString())
+                            }
                         }
                     } else {
                         try {
@@ -119,6 +140,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         } catch (e: Exception) {
                             Log.e("TAG", "onResponse: ${e.message}")
                         }
+                        isSuccessLoading.value = false
                     }
                 }
 

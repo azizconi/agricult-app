@@ -32,7 +32,8 @@ fun HomeScreen(
     categoryViewModel: CategoryViewModel,
     searchViewModel: SearchViewModel,
     dataStoreViewModel: DataStoreViewModel,
-    favouriteViewModel: FavouriteViewModel
+    favouriteViewModel: FavouriteViewModel,
+    contactViewModel: ContactViewModel
 ) {
     val navHostController = rememberNavController()
 
@@ -84,7 +85,8 @@ fun HomeScreen(
             categoryViewModel = categoryViewModel,
             searchViewModel = searchViewModel,
             dataStoreViewModel = dataStoreViewModel,
-            favouriteViewModel = favouriteViewModel
+            favouriteViewModel = favouriteViewModel,
+            contactViewModel = contactViewModel
         )
     }
 }

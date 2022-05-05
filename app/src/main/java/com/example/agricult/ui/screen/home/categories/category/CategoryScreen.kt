@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
@@ -42,7 +43,8 @@ fun CategoryScreen(
     dataStoreViewModel: DataStoreViewModel,
     favouriteViewModel: FavouriteViewModel,
     searchViewModel: SearchViewModel,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    navController: NavController
 ) {
 
     var expandedAnimation by remember {
@@ -84,7 +86,8 @@ fun CategoryScreen(
             },
             searchViewModel = searchViewModel,
             getToken = getToken.value,
-            navHostController = navHostController
+            navHostController = navHostController,
+            dataStoreViewModel = dataStoreViewModel
         )
         UnderSearchButtons { click, orderBy, clickSortingButton ->
             expandedAnimation = click
@@ -97,6 +100,7 @@ fun CategoryScreen(
                     orderBy = "desc",
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
+                    dataStoreViewModel = dataStoreViewModel
                 )
             } else {
                 categoryViewModel.getCategoryRequest(
@@ -105,6 +109,7 @@ fun CategoryScreen(
                     orderBy = "asc",
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
+                    dataStoreViewModel = dataStoreViewModel
                 )
             }
 
@@ -119,14 +124,14 @@ fun CategoryScreen(
 
             onClickFilterButtonData = onClickSearchFilterButton
 
-            Log.e("TAG", "CategoryScreen:102 $onClickFilterButtonData")
             if (onClickFilterButtonData) {
                 categoryViewModel.getCategoryRequest(
                     token = dataStoreViewModel.readFromDataStore.value.toString(),
                     categoryId = idCategory.toInt(),
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
-                    orderBy = orderByData
+                    orderBy = orderByData,
+                    dataStoreViewModel = dataStoreViewModel
                 )
             }
 
@@ -134,7 +139,9 @@ fun CategoryScreen(
         AnnouncementItemScreen(
             categoryModel = categoryViewModel.getCategoryModel.value,
             dataStoreViewModel = dataStoreViewModel,
-            favouriteViewModel = favouriteViewModel
+            favouriteViewModel = favouriteViewModel,
+            navHostController = navHostController,
+            categoryViewModel = categoryViewModel
         )
     }
 

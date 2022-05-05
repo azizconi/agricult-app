@@ -18,18 +18,22 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
     var getFavouriteAnnouncementModel = mutableStateOf(setFavouriteAnnouncement)
 
 
-    fun getFavouritesAnnouncement(token: String) {
-        return setFavouritesAnnouncement(token = token)
+    fun getFavouritesAnnouncement(token: String, dataStoreViewModel: DataStoreViewModel) {
+        return setFavouritesAnnouncement(token = token, dataStoreViewModel = dataStoreViewModel)
     }
 
 
-    private fun setFavouritesAnnouncement(token: String) {
+    private fun setFavouritesAnnouncement(token: String, dataStoreViewModel: DataStoreViewModel) {
         RetrofitInstance().api().getFavouritesAnnouncement(token = "Bearer $token")
             .enqueue(object : Callback<CategoryModel> {
                 override fun onResponse(
                     call: Call<CategoryModel>,
                     response: Response<CategoryModel>
                 ) {
+
+                    if (response.code() == 401) {
+                        dataStoreViewModel.clearDataStore()
+                    }
 
                     if (response.isSuccessful) {
                         response.body()?.let {

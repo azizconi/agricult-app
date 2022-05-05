@@ -1,5 +1,7 @@
 package com.example.agricult.ui.screen.login
 
+import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.agricult.R
 import com.example.agricult.models.requests.LoginUserModel
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
@@ -34,7 +39,6 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     dataStoreViewModel: DataStoreViewModel,
 ) {
-
 
 
     val context = LocalContext.current
@@ -220,6 +224,8 @@ fun LoginScreen(
                         Toast.LENGTH_LONG
                     ).show()
                 }
+
+
             }
         ) {
             Text(
@@ -231,6 +237,18 @@ fun LoginScreen(
         }
 
 
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = responseCheck(loginViewModel = loginViewModel),
+                fontSize = 15.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_regular))
+            )
+        }
 
 
 
@@ -264,42 +282,33 @@ fun LoginScreen(
         }
 
 
-        if (loginViewModel.getErrorMessageLogin.value.message != null &&
-            loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) == null
-        ) {
-            Toast.makeText(
-                context,
-                loginViewModel.getErrorMessageLogin.value.message,
-                Toast.LENGTH_LONG
-            ).show()
-            isVisibleProgressBar = if (!loginViewModel.isSuccessLoading.value) {
-                false
-            } else {
-                false
-            }
-        } else if (loginViewModel.getErrorMessageLogin.value.message != null &&
-            loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0) != null
-        ) {
-
-            Toast.makeText(
-                context,
-                loginViewModel.getErrorMessageLogin.value.errors?.phone?.get(0),
-                Toast.LENGTH_LONG
-            ).show()
-
-            isVisibleProgressBar = if (loginViewModel.isSuccessLoading.value) {
-                false
-            } else {
-                false
-            }
-        }
-
-
     }
 
 
 }
 
+fun responseCheck(loginViewModel: LoginViewModel): String {
+    val errorMessageResponse = loginViewModel.getErrorMessageLogin.value
+
+
+    var errorMessageResult: String = ""
+
+    if (errorMessageResponse.message != null &&
+        errorMessageResponse.errors?.phone?.get(0) == null
+    ) {
+        errorMessageResult = errorMessageResponse.message
+
+    } else if (errorMessageResponse.message != null &&
+        errorMessageResponse.errors?.phone?.get(0) != null
+    ) {
+
+        errorMessageResult = errorMessageResponse.errors.phone[0]
+
+
+    }
+    return errorMessageResult
+
+}
 
 @Composable
 fun OutlinedTextFieldBackground(

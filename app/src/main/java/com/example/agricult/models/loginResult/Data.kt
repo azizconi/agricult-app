@@ -9,5 +9,5 @@ data class Data(
 
 	@SerializedName("accessToken") val accessToken : String? = null,
 	var isSuccessLoading: Boolean = false
-//	@SerializedName("user") val user : com.example.agricult.models.category.com.example.agricult.models.search.User
+//	@SerializedName("user") val user : com.example.agricult.models.category.com.example.agricult.models.search.com.example.agricult.models.ads.com.example.agricult.models.my_ads.User
 )

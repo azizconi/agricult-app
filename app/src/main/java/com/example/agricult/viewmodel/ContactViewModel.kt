@@ -18,13 +18,17 @@ class ContactViewModel(application: Application): AndroidViewModel(application) 
     var getContactAnnouncementModel = mutableStateOf(setContactModel)
 
 
-    fun getContacts(token: String) {
+    fun getContacts(token: String, dataStoreViewModel: DataStoreViewModel) {
         RetrofitInstance().api().getContact(token = "Bearer $token")
             .enqueue(object : Callback<ContactModel> {
                 override fun onResponse(
                     call: Call<ContactModel>,
                     response: Response<ContactModel>
                 ) {
+                    if (response.code() == 401) {
+                        dataStoreViewModel.clearDataStore()
+                    }
+
                     if (response.isSuccessful) {
 
                         response.body().let {

@@ -11,12 +11,15 @@ import androidx.navigation.navArgument
 import com.example.agricult.models.addAds.AddAds
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncement
 import com.example.agricult.ui.screen.home.addAnnouncement.AddAnnouncementSecondScreen
+import com.example.agricult.ui.screen.home.announcement.AnnouncementScreen
 import com.example.agricult.ui.screen.home.categories.Categories
 import com.example.agricult.ui.screen.home.categories.category.CategoryScreen
 import com.example.agricult.ui.screen.home.contact.ContactScreen
+import com.example.agricult.ui.screen.home.edit_user_ads.EditUserAds
 import com.example.agricult.ui.screen.home.favorites.FavoritesScreen
 import com.example.agricult.ui.screen.home.profileUser.ProfileUserScreen
 import com.example.agricult.ui.screen.home.search.SearchScreen
+import com.example.agricult.ui.screen.home.userAds.UserAdsScreen
 import com.example.agricult.ui.screen.home.user_info.UserInfoScreen
 import com.example.agricult.viewmodel.*
 import java.net.URLEncoder
@@ -60,7 +63,9 @@ fun NavigationHome(
         composable("favorites_screen") {
             FavoritesScreen(
                 dataStoreViewModel = dataStoreViewModel,
-                favouriteViewModel = favouriteViewModel
+                favouriteViewModel = favouriteViewModel,
+                navHostController = navHostController,
+                categoryViewModel = categoryViewModel
             )
         }
 
@@ -86,7 +91,8 @@ fun NavigationHome(
                 dataStoreViewModel = dataStoreViewModel,
                 favouriteViewModel = favouriteViewModel,
                 searchViewModel = searchViewModel,
-                navHostController = navHostController
+                navHostController = navHostController,
+                navController = navController
             )
         }
 
@@ -109,14 +115,40 @@ fun NavigationHome(
         }
 
 
-        composable("addAdsSecondScreen?data={data}") {
-            val data =
-                navHostController.previousBackStackEntry?.arguments?.getParcelable<AddAds>("data")
+        composable(
+            "addAdsSecondScreen?price={price}&" +
+                    "address={address}&" +
+                    "title={title}&" +
+                    "phone={phone}&" +
+                    "email={email}&" +
+                    "categoryId={categoryId}&" +
+                    "userId={userId}"
+        ) {
 
+            val price = it.arguments?.getString("price")
+            val address = it.arguments?.getString("address")
+            val title = it.arguments?.getString("title")
+            val phone = it.arguments?.getString("phone")
+            val categoryId = it.arguments?.getString("categoryId")
+            val userId = it.arguments?.getString("userId")
 
-            Log.e("TAG", "NavigationHome: $data")
+            Log.e("TAG", "NavigationHome: $categoryId", )
+            val data = AddAds(
+                price = price,
+                title = title,
+                address = address,
+                phone = phone,
+                categoryId = categoryId?.toInt(),
+                userId = userId?.toInt(),
 
-            AddAnnouncementSecondScreen(data = data, navHostController = navHostController)
+            )
+
+            AddAnnouncementSecondScreen(
+                data = data,
+                navHostController = navHostController,
+                dataStoreViewModel = dataStoreViewModel,
+                categoryViewModel = categoryViewModel
+            )
 
         }
 
@@ -137,6 +169,36 @@ fun NavigationHome(
             )
         }
 
+
+        composable("user_ads_screen") {
+            UserAdsScreen(
+                navHostController = navHostController,
+                favouriteViewModel = favouriteViewModel,
+                dataStoreViewModel = dataStoreViewModel,
+                categoryViewModel = categoryViewModel
+            )
+        }
+
+
+        composable("ads_screen") {
+
+            AnnouncementScreen(
+                categoryViewModel = categoryViewModel,
+                dataStoreViewModel = dataStoreViewModel,
+                navHostController = navHostController
+            )
+        }
+
+        composable("edit_my_ads") {
+            EditUserAds(
+                dataStoreViewModel = dataStoreViewModel,
+                navHostController = navHostController,
+                categoriesViewModel = categoriesViewModel,
+                categoryViewModel = categoryViewModel
+            )
+        }
+
     }
 
 }
+

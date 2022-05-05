@@ -1,20 +1,10 @@
 package com.example.agricult.ui.screen.home.addAnnouncement
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
@@ -22,11 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -34,11 +25,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberImagePainter
+import com.bumptech.glide.util.Util
 import com.example.agricult.R
 import com.example.agricult.models.addAds.AddAds
+import com.example.agricult.ui.screen.home.user_info.getFileFromPath
+import com.example.agricult.ui.screen.home.user_info.rememberGetContentActivityResult
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
+import com.example.agricult.viewmodel.CategoryViewModel
+import com.example.agricult.viewmodel.DataStoreViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import okhttp3.FormBody
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.MultipartBody.Part.Companion.createFormData
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 
 @SuppressLint("ResourceType")
 @OptIn(ExperimentalFoundationApi::class)
@@ -46,25 +51,15 @@ import com.google.accompanist.coil.rememberCoilPainter
 fun AddAnnouncementSecondScreen(
     modifier: Modifier = Modifier,
     data: AddAds? = null,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    categoryViewModel: CategoryViewModel,
+    dataStoreViewModel: DataStoreViewModel
 ) {
 
-    var imageUrl by remember { mutableStateOf<Uri?>(null) }
-
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUrl = uri
+    val getToken = remember {
+        mutableStateOf("")
     }
-
-
-
-
-
-    Log.e("TAG", "AddAnnouncementSecondScreen: ${data?.address}")
-
+    getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
     val labelTextColor by remember {
         mutableStateOf(Color(0xff444444))
@@ -75,48 +70,20 @@ fun AddAnnouncementSecondScreen(
         mutableStateOf("")
     }
 
+
     val context = LocalContext.current
 
-    var countImages by remember {
-        mutableStateOf(0)
-    }
+    val getContentActivityResult = rememberGetContentActivityResult()
+    val file =
+        getContentActivityResult.uri?.let { uri -> getFileFromPath(uri, "profilePicture", context) }
 
-
-    val imageList: List<Bitmap> = listOf()
-    var imageListInit by remember {
-        mutableStateOf(imageList)
-    }
-
-    var imageOne by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    var imageTwo by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    var imageThree by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    var imageFour by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    var imageFive by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    var imageSix by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
+    val requestBody = file?.asRequestBody("image/*".toMediaType())
+    val imageMultipart = requestBody?.let { createFormData("media", file.name, it) }
 
 
 
     Column(
         modifier = modifier
-            .verticalScroll(rememberScrollState())
     ) {
         TopAppBar(
             title = {
@@ -126,7 +93,7 @@ fun AddAnnouncementSecondScreen(
                     fontFamily = FontFamily(Font(R.font.roboto_medium)),
                     color = Color.White,
 
-                )
+                    )
             },
             navigationIcon = {
                 IconButton(
@@ -153,312 +120,228 @@ fun AddAnnouncementSecondScreen(
                 .fillMaxWidth()
         )
 
-        Column(
+        LazyColumn(
             modifier = modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxHeight()
                 .fillMaxWidth()
         ) {
 
-            Column(
-                modifier = modifier
-                    .padding(top = 32.dp, bottom = 24.dp)
-            ) {
-                Text(
-                    text = "Дополнительные информация",
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                    color = Color(0xff333333)
-                )
+            item {
+                Column(
+                    modifier = modifier
+                        .padding(top = 32.dp, bottom = 24.dp)
+                ) {
+                    Text(
+                        text = "Дополнительные информация",
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                        color = Color(0xff333333)
+                    )
 
 
+                }
             }
 
-
-            Column(
-                modifier = modifier
-                    .padding(bottom = 24.dp)
-            ) {
-
-                Text(
-                    text = "Выбрать фото",
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto_regular)),
-                    color = labelTextColor,
+            item {
+                Column(
                     modifier = modifier
-                        .padding(bottom = 5.dp)
-                )
+                        .padding(bottom = 24.dp)
+                ) {
+
+                    Text(
+                        text = "Выбрать фото",
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                        color = labelTextColor,
+                        modifier = modifier
+                            .padding(bottom = 5.dp)
+                    )
 
 
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(256.dp)
+                                .border(1.dp, Color(0xffD4D4D4), shape = RoundedCornerShape(4.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = rememberCoilPainter(request = R.drawable.addphoto),
+                                contentDescription = "add photo",
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clickable { getContentActivityResult.launch("image/*") }
+                            )
 
+                            Image(
+                                painter = rememberImagePainter(
+                                    data = getContentActivityResult.uri,
+                                    builder = {
+                                        Box(
+                                            modifier = modifier
+                                                .size(50.dp)
+                                        ) {
+                                            placeholder(R.drawable.ic_baseline_image_24)
+                                        }
+                                    }),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "ads-photo",
+                                modifier = modifier
+                                    .fillMaxSize()
+                                    .clip(shape = RoundedCornerShape(4.dp))
+                                    .padding(1.dp)
+                            )
+                        }
+                    }
+                }
+            }
 
+            item {
+                Column(
+                    modifier = modifier
+                        .padding(bottom = 62.dp)
+                ) {
 
+                    Text(
+                        text = "Описание",
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                        color = labelTextColor,
+                        modifier = modifier
+                            .padding(bottom = 5.dp)
+                    )
 
-                Column {
-
-
-                    Column(
-                        modifier = Modifier
+                    Box(
+                        modifier = modifier
                             .fillMaxWidth()
-                            .height(256.dp)
-
-
+                            .defaultMinSize(minHeight = 64.dp)
                             .border(1.dp, Color(0xffD4D4D4), shape = RoundedCornerShape(4.dp)),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
                     ) {
 
-                        imageUrl?.let {
-                            PickImageFromGallery(
-                                context = context,
-                                bitmap = bitmap,
-                                imageUrl = it
+                        BasicTextField(
+                            modifier = modifier
+                                .background(
+                                    TextFieldColor,
+                                    MaterialTheme.shapes.small
+                                )
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 186.dp),
+                            value = descriptionAnnouncement,
+                            onValueChange = {
+                                descriptionAnnouncement = it
+                            },
+                            singleLine = false,
+                            cursorBrush = SolidColor(MaterialTheme.colors.primary),
+                            textStyle = LocalTextStyle.current.copy(
+                                color = Color(0xff444444),
+                                fontSize = 14.sp
+                            ),
+                            decorationBox = { innerTextField ->
+                                Row(
+                                    modifier = modifier,
+                                ) {
+
+                                    Box(
+                                        Modifier
+                                            .weight(1f)
+                                            .padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                top = 12.dp,
+                                                bottom = 14.dp
+                                            )
+                                    ) {
+
+                                        innerTextField()
+                                    }
+
+                                }
+                            },
+                        )
+                    }
+
+                }
+            }
+
+            item {
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            val strokeWidth = 0.5f * density
+                            val y = size.height - strokeWidth / 2
+
+                            drawLine(
+                                Color.LightGray,
+                                Offset(0f, y),
+                                Offset(size.width, y),
+                                strokeWidth
                             )
                         }
 
-
-
-                        Image(
-                            painter = rememberCoilPainter(request = R.drawable.addphoto),
-                            contentDescription = "add photo",
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clickable { launcher.launch("image/*") }
-                        )
-
-                    }
-
-
-                }
-
-
-                Log.e("TAG", "countImages: $countImages")
-                Log.e("TAG", "imageListInit: ${imageListInit.size}")
-
-            }
-
-
-            Column(
-                modifier = modifier
-                    .padding(bottom = 62.dp)
-            ) {
-
-                Text(
-                    text = "Описание",
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto_regular)),
-                    color = labelTextColor,
-                    modifier = modifier
-                        .padding(bottom = 5.dp)
-                )
-
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .defaultMinSize(minHeight = 64.dp)
-                        .border(1.dp, Color(0xffD4D4D4), shape = RoundedCornerShape(4.dp)),
                 ) {
 
-                    BasicTextField(
+                }
+            }
+
+            item {
+                Column(
+                    modifier = modifier
+                        .padding(bottom = 62.dp, top = 11.dp)
+                        .fillMaxWidth()
+
+                ) {
+
+                    Log.e("TAG", "AddAnnouncementSecondScreen: ${data?.categoryId}")
+
+                    Button(
                         modifier = modifier
-                            .background(
-                                TextFieldColor,
-                                MaterialTheme.shapes.small
-                            )
                             .fillMaxWidth()
-                            .defaultMinSize(minHeight = 186.dp),
-                        value = descriptionAnnouncement,
-                        onValueChange = {
-                            descriptionAnnouncement = it
-                        },
-                        singleLine = false,
-                        cursorBrush = SolidColor(MaterialTheme.colors.primary),
-                        textStyle = LocalTextStyle.current.copy(
-                            color = Color(0xff444444),
-                            fontSize = 14.sp
-                        ),
-                        decorationBox = { innerTextField ->
-                            Row(
-                                modifier = modifier,
-                            ) {
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
+                        onClick = {
+                            if (imageMultipart != null) {
 
-                                Box(
-                                    Modifier
-                                        .weight(1f)
-                                        .padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 12.dp,
-                                            bottom = 14.dp
-                                        )
-                                ) {
+                                val requestBodyData: RequestBody = MultipartBody.Builder()
+                                    .setType(MultipartBody.FORM)
+                                    .addFormDataPart("title", data?.title.toString())
+                                    .addFormDataPart("description", data?.description.toString())
+                                    .addFormDataPart("phone", data?.phone.toString())
+                                    .addFormDataPart("price", data?.price.toString())
+                                    .addFormDataPart("address", data?.address.toString())
+//                                    .addPart(imageMultipart)
+                                    .build()
 
-                                    innerTextField()
+
+                                if (data != null) {
+                                    categoryViewModel.addAdsRequest(
+                                        token = getToken.value,
+                                        category_id = data.categoryId!!,
+                                        user_id = data.userId!!,
+                                        moderation_status_id = data.moderationStatusId,
+                                        requestBody = requestBodyData,
+                                        media = imageMultipart
+                                    )
+
                                 }
 
-
                             }
-                        },
-                    )
-                }
-
-            }
-
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        val strokeWidth = 0.5f * density
-                        val y = size.height - strokeWidth / 2
-
-                        drawLine(
-                            Color.LightGray,
-                            Offset(0f, y),
-                            Offset(size.width, y),
-                            strokeWidth
+                        }
+                    ) {
+                        Text(
+                            text = "Сохранить",
+                            textAlign = TextAlign.Center,
+                            color = Color.White,
+                            fontSize = 18.sp
                         )
                     }
-
-            ) {
-
-            }
-
-            Column(
-                modifier = modifier
-                    .padding(bottom = 62.dp, top = 11.dp)
-                    .fillMaxWidth()
-
-            ) {
-
-                Button(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .height(44.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
-                    onClick = {
-
-
-                    }
-                ) {
-                    Text(
-                        text = "Сохранить",
-                        textAlign = TextAlign.Center,
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
                 }
             }
 
+
         }
 
     }
 }
-
-
-@Composable
-fun PickImageFromGallery(
-    imageUrl: Uri,
-    bitmap: MutableState<Bitmap?>,
-    context: Context
-) {
-
-
-    imageUrl.let {
-        if (Build.VERSION.SDK_INT < 28) {
-            bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-
-        } else {
-            val source = ImageDecoder.createSource(context.contentResolver, it)
-            bitmap.value = ImageDecoder.decodeBitmap(source)
-        }
-
-
-        bitmap.value?.let { bitmap ->
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Gallery Image",
-                modifier = Modifier
-                    .padding(10.dp)
-            )
-        }
-    }
-
-
-}
-
-@Composable
-fun PickImageFromGalleryBottom(
-    modifier: Modifier = Modifier,
-    convertData: (bitmapImage: Bitmap) -> Unit,
-) {
-
-    val context = LocalContext.current
-
-    var imageUrl by remember { mutableStateOf<Uri?>(null) }
-
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUrl = uri
-    }
-
-
-
-
-
-    Column(
-        modifier = modifier
-            .width(100.dp)
-            .height(100.dp)
-
-            .border(
-                1.dp,
-                Color(0xffD4D4D4),
-                shape = RoundedCornerShape(4.dp)
-            )
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        imageUrl?.let {
-            if (Build.VERSION.SDK_INT < 28) {
-                bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, it)
-                bitmap.value = ImageDecoder.decodeBitmap(source)
-            }
-
-
-            bitmap.value?.let { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Gallery Image",
-                    modifier = Modifier
-                        .padding(10.dp)
-                )
-
-                Log.e("TAG", "PickImageFromGalleryBottom: ${bitmap.asImageBitmap()}",)
-            }
-        }
-
-        if (bitmap.value != null) {
-            convertData(bitmap.value!!)
-        }
-
-        Image(
-            painter = rememberCoilPainter(request = R.drawable.addphoto),
-            contentDescription = "add photo",
-            modifier = Modifier
-                .size(36.dp)
-                .clickable { launcher.launch("image/*") }
-        )
-
-    }
-
-
-}
-

@@ -1,8 +1,10 @@
 package com.example.agricult.ui.screen.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.*
-import com.example.agricult.R
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -15,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.agricult.R
 import com.example.agricult.ui.screen.home.navigation.BottomNavItem
 import com.example.agricult.ui.screen.home.navigation.NavigationHome
 import com.example.agricult.ui.theme.PrimaryColorGreen
@@ -44,7 +47,7 @@ fun HomeScreen(
                     BottomNavItem(
                         name = "Объявления",
                         route = "categories",
-                        icon = R.drawable.list
+                        icon = R.drawable.list,
                     ),
                     BottomNavItem(
                         name = "Подать объявления",
@@ -67,7 +70,7 @@ fun HomeScreen(
                 ),
                 navController = navHostController,
                 onItemClick = {
-                    navHostController.navigate(it.route){
+                    navHostController.navigate(it.route) {
                         popUpTo(route = it.route) {
                             inclusive = true
                         }
@@ -101,14 +104,24 @@ fun BottomNavigationBar(
     onItemClick: (BottomNavItem) -> Unit
 ) {
     val backStackEntry = navController.currentBackStackEntryAsState()
+
+
     BottomNavigation(
         modifier = modifier
             .height(56.dp),
         backgroundColor = Color.White,
 
         ) {
+
+
+
         items.forEach { item ->
+
+
             val selected = item.route == backStackEntry.value?.destination?.route
+
+
+
             BottomNavigationItem(
                 selected = selected,
                 onClick = { onItemClick(item) },

@@ -3,6 +3,7 @@ package com.example.agricult.ui.screen.home.announcementItem
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.models.category.Data
 import com.example.agricult.ui.theme.PrimaryColorGreen
@@ -33,7 +36,9 @@ fun AnnouncementItemScreen(
     modifier: Modifier = Modifier,
     categoryModel: List<Data>,
     dataStoreViewModel: DataStoreViewModel,
-    favouriteViewModel: FavouriteViewModel
+    favouriteViewModel: FavouriteViewModel,
+    navHostController: NavHostController,
+    categoryViewModel: CategoryViewModel
 ) {
 
 
@@ -53,7 +58,9 @@ fun AnnouncementItemScreen(
             AnnouncementItems(
                 data = categoryModel[it],
                 dataStoreViewModel = dataStoreViewModel,
-                favouriteViewModel = favouriteViewModel
+                favouriteViewModel = favouriteViewModel,
+                navHostController = navHostController,
+                categoryViewModel = categoryViewModel
             )
         }
     }
@@ -65,7 +72,9 @@ fun AnnouncementItems(
     modifier: Modifier = Modifier,
     data: Data,
     favouriteViewModel: FavouriteViewModel,
-    dataStoreViewModel: DataStoreViewModel
+    dataStoreViewModel: DataStoreViewModel,
+    navHostController: NavHostController,
+    categoryViewModel: CategoryViewModel
 ) {
 
     val isFavouriteIcon = remember {
@@ -77,10 +86,6 @@ fun AnnouncementItems(
         isFavouriteIcon.value = R.drawable.heart
     } else {
         isFavouriteIcon.value = R.drawable.heard_click
-    }
-
-    val isClickFavourite = remember {
-        mutableStateOf(false)
     }
 
     val getToken = remember {
@@ -96,7 +101,16 @@ fun AnnouncementItems(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(vertical = 16.dp)
+            .clickable {
 
+                categoryViewModel.getAdsById(
+                    id = data.id,
+                    token = getToken.value,
+                    dataStoreViewModel = dataStoreViewModel
+                )
+
+                navHostController.navigate("ads_screen")
+            }
     ) {
 
         Card(

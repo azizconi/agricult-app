@@ -23,17 +23,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.agricult.R
-import com.example.agricult.models.contacts.ContactModel
-import com.example.agricult.models.contacts.Data
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.viewmodel.ContactViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import java.util.*
 
 
 @Composable
@@ -55,7 +53,7 @@ fun ContactScreen(
 
 
 
-    contactViewModel.getContacts(getToken.value)
+    contactViewModel.getContacts(getToken.value, dataStoreViewModel = dataStoreViewModel)
 
 
     Column {
@@ -253,6 +251,71 @@ fun ContactsEmailItem(
 
 }
 
+@Composable
+fun ContactsAddressItem(
+    modifier: Modifier = Modifier,
+    address: String
+) {
+    val context = LocalContext.current
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .drawBehind {
+                val strokeWidth = 0.5f * density
+                val y = size.height - strokeWidth / 2
+
+                drawLine(
+                    Color.LightGray,
+                    Offset(0f, y),
+                    Offset(size.width, y),
+                    strokeWidth
+                )
+            }
+            .clickable {
+                openMap(address = address, context = context)
+            }
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+
+        ) {
+
+            Image(
+                painter = rememberCoilPainter(request = R.drawable.email),
+                contentDescription = "email",
+                modifier = modifier
+                    .size(28.dp)
+            )
+
+            Spacer(
+                modifier = modifier
+                    .width(15.dp)
+            )
+
+            Row(
+                modifier = modifier
+                    .defaultMinSize(minHeight = 28.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+
+                Text(
+                    text = address,
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                    color = Color(0xff444444),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+
+}
+
+
 fun openPhone(numberPhone: String, context: Context) {
 
     val intent = Intent(Intent.ACTION_DIAL)
@@ -267,5 +330,11 @@ fun openEmail(email: String, context: Context) {
     val intent = Intent(Intent.ACTION_SENDTO)
     intent.data = Uri.parse("mailto:$email")
 
+    context.startActivity(intent)
+}
+
+fun openMap(address: String, context: Context) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = Uri.parse("geo:https://www.google.com/maps/place/$address")
     context.startActivity(intent)
 }

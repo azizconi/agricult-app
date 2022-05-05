@@ -1,18 +1,19 @@
 package com.example.agricult.network
 
-import android.app.DatePickerDialog
-import android.graphics.Bitmap
+import com.example.agricult.models.addAds.AddAds
+import com.example.agricult.models.ads.AdsModel
+import com.example.agricult.models.ads.Advertisement
 import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.contacts.ContactModel
 import com.example.agricult.models.loginResult.AuthResult
+import com.example.agricult.models.my_ads.MyAdsModel
 import com.example.agricult.models.profileShowResult.ProfileShowResult
 import com.example.agricult.models.requests.LoginUserModel
 import com.example.agricult.models.requests.RegistrationUser
 import com.example.agricult.models.search.SearchModel
-import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
-import com.example.agricult.viewmodel.SearchViewModel
-import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -25,7 +26,6 @@ interface AgricultureApi {
     fun login(
         @Body authenticationUser: LoginUserModel
     ): Call<AuthResult>
-
 
 
     @POST("api/auth/register")
@@ -98,12 +98,54 @@ interface AgricultureApi {
     ): Call<ContactModel>
 
 
-    
     @POST("api/profile/update?_method=PUT")
     fun updateUserProfileData(
         @Header(value = "Authorization") token: String,
-        @Body updateProfileUserModel: UpdateProfileUserModel
+        @Body requestBody: RequestBody,
     ): Call<String>
 
 
+    @GET("api/profile/advertisements")
+    fun getUserAds(
+        @Header(value = "Authorization") token: String,
+        @Query("page") page: Int = 1
+    ): Call<CategoryModel>
+
+
+    @GET("/api/advertisements/{id}")
+    fun getAdsById(
+        @Header(value = "Authorization") token: String,
+        @Path("id") id: Int
+    ): Call<AdsModel>
+
+
+    @Multipart
+    @POST("/api/advertisements/store")
+    fun addAds(
+        @Header(value = "Authorization") token: String,
+
+        @Part("category_id") category_id: Int,
+        @Part("user_id") user_id: Int,
+        @Part("moderation_status_id") moderation_status_id: Int,
+        @Part("media") media: MultipartBody.Part,
+        @Part requestBody: RequestBody
+    ): Call<String>
+
+
+    @GET("api/profile/advertisements/{id}")
+    fun getMyAds(
+        @Header(value = "Authorization") token: String,
+        @Path("id") id: Int
+    ): Call<MyAdsModel>
+
+
+    @POST("/api/profile/advertisements/{id}?_method=PUT")
+    fun updateAds(
+        @Header(value = "Authorization") token: String,
+        @Path("id") id: Int,
+        @Body addAds: AddAds
+    ): Call<String>
+
 }
+
+//    .addPart(imageMultipart)

@@ -24,7 +24,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         priceFrom: Int,
         priceTo: Int,
         page: Int,
-        orderBy: String
+        orderBy: String,
+        dataStoreViewModel: DataStoreViewModel
     ) {
         return setSearchAnnouncement(
             query = query,
@@ -32,7 +33,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             priceFrom = priceFrom,
             priceTo = priceTo,
             page = page,
-            orderBy = orderBy
+            orderBy = orderBy,
+            dataStoreViewModel = dataStoreViewModel
         )
     }
 
@@ -43,7 +45,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         priceFrom: Int,
         priceTo: Int,
         page: Int,
-        orderBy: String
+        orderBy: String,
+        dataStoreViewModel: DataStoreViewModel
     ) {
         RetrofitInstance().api().getSearchAnnouncement(
             token = "Bearer $token",
@@ -58,6 +61,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     call: Call<SearchModel>,
                     response: Response<SearchModel>
                 ) {
+
+                    if (response.code() == 401) {
+                        dataStoreViewModel.clearDataStore()
+                    }
+
 
                     if (response.isSuccessful) {
 

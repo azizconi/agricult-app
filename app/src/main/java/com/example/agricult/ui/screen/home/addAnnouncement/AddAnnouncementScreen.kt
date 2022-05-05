@@ -56,20 +56,15 @@ fun AddAnnouncement(
     navHostController: NavHostController,
     categoriesViewModel: CategoriesViewModel,
     profileRequestViewModel: ProfileRequestViewModel,
-//    addAdsData: (
-//        nameAnnouncement: String,
-//        priceAnnouncement: String,
-//        phone: String,
-//        address: String,
-//        email: String,
-//
-//    ) -> Unit
 ) {
 
     val categoriesModels = categoriesViewModel.getCategoriesModel.value
 
 
-    profileRequestViewModel.getShowProfileUser(dataStoreViewModel.readFromDataStore.value.toString())
+    profileRequestViewModel.getShowProfileUser(
+        dataStoreViewModel.readFromDataStore.value.toString(),
+        dataStoreViewModel = dataStoreViewModel
+    )
 
 
     val profileRequestModel = profileRequestViewModel.getShowUserData.value
@@ -122,9 +117,10 @@ fun AddAnnouncement(
     var expanded by remember { mutableStateOf(false) }
 
     val categories = remember {
-        mutableStateOf<CategoriesModel>(CategoriesModel(title = ""))
+        mutableStateOf(CategoriesModel(title = ""))
     }
     var categoriesModel by remember { mutableStateOf("") }
+    var getCategoriesId by remember { mutableStateOf(0) }
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
@@ -374,9 +370,10 @@ fun AddAnnouncement(
                             .fillMaxWidth(),
                         value = phone,
                         onValueChange = {
-                            if (phone.length <= 9) {
+                            if (it.length <= 9) {
                                 phone = it
                             }
+
 
 
                             phoneAccess = phone.length == 9
@@ -474,7 +471,7 @@ fun AddAnnouncement(
                             address = it
 
 
-                            addressAccess = address.length >= 6
+                            addressAccess = it.length >= 6
 
                             if (address.isEmpty()) {
                                 addressAccess = true
@@ -551,13 +548,25 @@ fun AddAnnouncement(
                         onValueChange = {
                             email = it
 
-                            email.forEach { symbol ->
-                                emailAccess = symbol == '@'
+                            val indexEmail =  mutableStateOf(0)
+                            val emailDogSymbol = mutableStateOf(false)
+
+
+
+                            it.forEachIndexed { index, symbol ->
+                                emailDogSymbol.value = symbol == '@'
+                                if (emailDogSymbol.value) {
+                                    indexEmail.value = index
+                                }
                             }
 
-                            if (email.isEmpty()) {
-                                emailAccess = true
-                            }
+
+
+                            emailAccess = emailDogSymbol.value || (indexEmail.value + 5) <= email.length
+
+
+
+
                         },
                         singleLine = true,
                         cursorBrush = SolidColor(MaterialTheme.colors.primary),
@@ -675,6 +684,7 @@ fun AddAnnouncement(
                 categoriesModels.forEach { label ->
                     DropdownMenuItem(onClick = {
                         categoriesModel = label.title!!
+                        getCategoriesId = label.id!!
                         categories.value = label
                         expanded = false
                     }) {
@@ -712,44 +722,45 @@ fun AddAnnouncement(
 
         ) {
 
+
+
             Button(
                 modifier = modifier
                     .fillMaxWidth()
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
                 onClick = {
+
+
                     if (nameAnnouncement == "" || nameAnnouncement.isEmpty() &&
                         priceAnnouncement == "" || priceAnnouncement.isEmpty() &&
                         phone == "" || phone.isEmpty() &&
                         address == "" || address.isEmpty() &&
                         email == "" || email.isEmpty() &&
-                        categories.value.title == "" || categories.value.title!!.isEmpty()
+                        categories.value.title == "" || categories.value.title!!.isEmpty() ||
+                        !nameAccess || !phoneAccess || !addressAccess || !emailAccess
                     ) {
                         Toast.makeText(
                             context,
                             "Заполните поля",
                             Toast.LENGTH_LONG
                         ).show()
-                    } else if (nameAccess && phoneAccess && addressAccess && emailAccess ){
-                        Toast.makeText(
-                            context,
-                            "Корректно заполните поля",
-                            Toast.LENGTH_LONG
-                        ).show()
                     } else {
-                        val data = AddAds(
-                            price = priceAnnouncement,
-                            address = address,
-                            title = nameAnnouncement,
-                            phone = phone,
-                            categoryId = categories.value.id!!,
-                            userId = profileRequestModel.id!!
+
+                        Log.e("TAG", "AddAnnouncement: $getCategoriesId", )
+
+                        navHostController.navigate(
+                            "addAdsSecondScreen?price=$priceAnnouncement&" +
+                                    "address=$address&" +
+                                    "title=$nameAnnouncement&" +
+                                    "phone=$phone&" +
+                                    "email=$email&" +
+                                    "categoryId=${categories.value.id}&" +
+                                    "userId=${profileRequestModel.id}"
                         )
 
-                        Log.e("TAG", "AddAnnouncement: $data")
-                        navHostController.navigate("addAdsSecondScreen?data=${data}")
-                    }
 
+                    }
                 }
             ) {
                 Text(

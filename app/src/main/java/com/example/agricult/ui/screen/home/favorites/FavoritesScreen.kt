@@ -14,11 +14,14 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.agricult.R
 import com.example.agricult.ui.screen.ErrorInternetConnection
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
 import com.example.agricult.ui.screen.home.categories.SearchBar
 import com.example.agricult.ui.theme.PrimaryColorGreen
+import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.FavouriteViewModel
 
@@ -27,7 +30,9 @@ import com.example.agricult.viewmodel.FavouriteViewModel
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
     dataStoreViewModel: DataStoreViewModel,
-    favouriteViewModel: FavouriteViewModel
+    favouriteViewModel: FavouriteViewModel,
+    navHostController: NavHostController,
+    categoryViewModel: CategoryViewModel
 ) {
     val isLock = remember {
         mutableStateOf(true)
@@ -44,7 +49,8 @@ fun FavoritesScreen(
 
 
     favouriteViewModel.getFavouritesAnnouncement(
-        token = getToken.value
+        token = getToken.value,
+        dataStoreViewModel = dataStoreViewModel
     )
 
 
@@ -76,7 +82,9 @@ fun FavoritesScreen(
         AnnouncementItemScreen(
             categoryModel = favouriteViewModel.getFavouriteAnnouncementModel.value,
             dataStoreViewModel = dataStoreViewModel,
-            favouriteViewModel = favouriteViewModel
+            favouriteViewModel = favouriteViewModel,
+            navHostController = navHostController,
+            categoryViewModel = categoryViewModel
         )
 
 //        } else {

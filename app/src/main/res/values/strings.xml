@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Agricult</string>
+    <string name="categories_screen">categories</string>
+    <string name="add_advertisement">Agricult</string>
+    <string name="search_result">search_screen?query={query}</string>
+    <string name="contact_center">contact_screen</string>
+    <string name="my_ads">user_ads_screen</string>
+    <string name="edit_profile">user_info_screen</string>
+    <string name="profile">profile_user_screen</string>
+    <string name="favorites">favorites_screen</string>
+    <string name="catalog">category_screen?id={id}</string>
 </resources>

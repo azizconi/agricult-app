@@ -74,6 +74,7 @@ fun SearchScreen(
         SearchToolbar(
             searchViewModel = searchViewModel,
             getToken = getToken.value,
+            dataStoreViewModel = dataStoreViewModel
         ) {
 
         }
@@ -88,7 +89,8 @@ fun SearchScreen(
                     orderBy = "desc",
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
-                    page = 1
+                    page = 1,
+                    dataStoreViewModel = dataStoreViewModel
                 )
             } else {
                 searchViewModel.getSearchAnnouncement(
@@ -97,7 +99,8 @@ fun SearchScreen(
                     orderBy = "asc",
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
-                    page = 1
+                    page = 1,
+                    dataStoreViewModel = dataStoreViewModel
                 )
             }
 
@@ -120,7 +123,8 @@ fun SearchScreen(
                     priceFrom = minPriceByData.toInt(),
                     priceTo = maxPriceByData.toInt(),
                     orderBy = orderByData,
-                    page = 1
+                    page = 1,
+                    dataStoreViewModel = dataStoreViewModel
                 )
             }
 
@@ -144,6 +148,7 @@ fun SearchToolbar(
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
     getToken: String,
+    dataStoreViewModel: DataStoreViewModel,
     param: (query: String) -> Unit
 ) {
 
@@ -155,6 +160,7 @@ fun SearchToolbar(
                     param(it)
                 }, searchViewModel = searchViewModel,
                 getToken = getToken,
+                dataStoreViewModel = dataStoreViewModel
             )
         },
         backgroundColor = PrimaryColorGreen,
@@ -173,6 +179,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
     getToken: String,
+    dataStoreViewModel: DataStoreViewModel,
     onSearchClicked: (String) -> Unit,
 ) {
 
@@ -214,8 +221,22 @@ fun SearchBar(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearchClicked(text)
-                    keyboardController?.hide()
+                    if (text.isNotEmpty() || text != "") {
+
+
+                        searchViewModel.getSearchAnnouncement(
+                            query = text,
+                            token = getToken,
+                            priceFrom = 0,
+                            priceTo = 1000000,
+                            orderBy = "desc",
+                            page = 1,
+                            dataStoreViewModel = dataStoreViewModel
+                        )
+
+                        keyboardController?.hide()
+                    }
+
                 },
 
                 ),
@@ -254,7 +275,8 @@ fun SearchBar(
                                     priceFrom = 0,
                                     priceTo = 1000000,
                                     orderBy = "desc",
-                                    page = 1
+                                    page = 1,
+                                    dataStoreViewModel = dataStoreViewModel
                                 )
 
 

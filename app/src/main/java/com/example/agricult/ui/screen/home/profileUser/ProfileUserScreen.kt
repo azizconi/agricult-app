@@ -57,6 +57,7 @@ fun ProfileUserScreen(
         if (getToken != null) {
             profileRequestViewModel.getShowProfileUser(
                 token = getToken,
+                dataStoreViewModel = dataStoreViewModel
             )
         }
 
@@ -83,7 +84,7 @@ fun ProfileUserScreen(
             Color(0xFF27AE60),
             18,
             16,
-            "my_announcements_screen"
+            "user_ads_screen"
         ),
         ItemMenuProfileUser(
             R.drawable.contact_centre,
@@ -134,7 +135,14 @@ fun ProfileUserScreen(
                                 .padding(16.dp)
                         ) {
                             Image(
-                                painter = rememberCoilPainter(request = "http://api.agricult.colibri.tj/public/storage/" + getShowUserData.value.image),
+                                painter = rememberCoilPainter(
+                                    request = "http://api.agricult.colibri.tj/public/storage/" + getShowUserData.value.image,
+                                    requestBuilder = {
+
+                                            placeholder(R.drawable.ic_baseline_image_24)
+
+                                    }
+                                ),
                                 contentDescription = "photo profile",
                                 contentScale = ContentScale.Crop,
                                 modifier = modifier
@@ -162,7 +170,7 @@ fun ProfileUserScreen(
                                 )
 
                                 Text(
-                                    text = "${year - (getDate(getShowUserData.value.date_of_birth.toString())).toInt()} лет",
+                                    text = getShowUserData.value.date_of_birth.toString(),
                                     fontSize = 14.sp,
                                     fontFamily = FontFamily(Font(R.font.roboto_regular)),
                                     color = Color(0xFF999999),
@@ -338,14 +346,3 @@ fun MenuItems(
 }
 
 
-@SuppressLint("SimpleDateFormat")
-fun getDate(age: String): String {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-    val format = "yyyy"
-
-    val simpleDateFormat = SimpleDateFormat(format)
-
-
-    return simpleDateFormat.format(dateFormat.parse(age) as Date)
-}

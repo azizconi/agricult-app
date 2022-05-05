@@ -4,12 +4,13 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.errors.ErrorMessageLogin
 import com.example.agricult.models.profileShowResult.Data
 import com.example.agricult.models.profileShowResult.ProfileShowResult
-import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
 import com.example.agricult.network.RetrofitInstance
 import com.google.gson.GsonBuilder
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,13 +22,13 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
     private val setDataAgriculture = Data()
     val getShowUserData = mutableStateOf(setDataAgriculture)
 
-    var isSuccessLoadingProfile = mutableStateOf(value = false)
+    var isSuccessLoadingProfile = mutableStateOf(value = true)
 
-    fun getShowProfileUser(token: String) {
-        return setShowProfileUser(token)
+    fun getShowProfileUser(token: String, dataStoreViewModel: DataStoreViewModel) {
+        return setShowProfileUser(token, dataStoreViewModel)
     }
 
-    private fun setShowProfileUser(token: String) {
+    private fun setShowProfileUser(token: String, dataStoreViewModel: DataStoreViewModel) {
         RetrofitInstance().api().getProfileShow(token = "Bearer $token")
             .enqueue(object : Callback<ProfileShowResult> {
                 override fun onResponse(
@@ -35,10 +36,13 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
                     response: Response<ProfileShowResult>
                 ) {
 
+                    if (response.code() == 401) {
+                        dataStoreViewModel.clearDataStore()
+                    }
+
 
 
                     if (response.code() != 200) {
-//                        roomViewModel.deleteToken()
 
                         val gson = GsonBuilder().create()
                         val pojo: ErrorMessageLogin
@@ -53,9 +57,9 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
 
                     }
 
-                    if(response.isSuccessful) {
+                    if (response.isSuccessful) {
                         response.body()?.data.let {
-                            Log.e("TAG", "onResponse: $it", )
+                            Log.e("TAG", "onResponse: $it")
                             if (it != null) {
                                 getShowUserData.value = it
                             }
@@ -67,7 +71,7 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
                 }
 
                 override fun onFailure(call: Call<ProfileShowResult>, t: Throwable) {
-                    Log.e("TAG", t.message.toString(), )
+                    Log.e("TAG", t.message.toString())
                     isSuccessLoadingProfile.value = false
                 }
 
@@ -75,22 +79,32 @@ class ProfileRequestViewModel(application: Application) : AndroidViewModel(appli
     }
 
 
-    fun updateProfileRequest(token: String, updateProfileUserModel: UpdateProfileUserModel) {
+    fun updateProfileRequest(
+        token: String,
+        requestBody: RequestBody,
+        dataStoreViewModel: DataStoreViewModel
+    ) {
         RetrofitInstance().api().updateUserProfileData(
             token = "Bearer $token",
-            updateProfileUserModel = updateProfileUserModel
+            requestBody = requestBody
         ).enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.code() == 401) {
+                    dataStoreViewModel.clearDataStore()
+                }
+
                 if (response.isSuccessful) {
-                    Log.e("TAG", "onResponse: ${response.body()}", )
+                    Log.e("TAG", "onResponse: ${response.body()}")
                 }
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.e("TAG", "onResponse: ${t.message}", )
+                Log.e("TAG", "onResponse: ${t.message}")
             }
 
         })
     }
+
+
 
 }

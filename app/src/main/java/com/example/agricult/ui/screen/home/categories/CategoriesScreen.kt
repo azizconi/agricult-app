@@ -65,7 +65,8 @@ fun Categories(
             },
             searchViewModel = searchViewModel,
             getToken = getToken.value,
-            navHostController = navHostController
+            navHostController = navHostController,
+            dataStoreViewModel = dataStoreViewModel
         )
 
         Column(
@@ -79,7 +80,8 @@ fun Categories(
                         categoriesModel = getCategoriesModel[it],
                         categoryViewModel = categoryViewModel,
                         getToken = getToken.value,
-                        navHostController = navHostController
+                        navHostController = navHostController,
+                        dataStoreViewModel = dataStoreViewModel
                     )
                 }
             }
@@ -95,6 +97,7 @@ fun CategoriesToolbar(
     searchViewModel: SearchViewModel,
     getToken: String,
     navHostController: NavHostController,
+    dataStoreViewModel: DataStoreViewModel,
     param: (query: String) -> Unit
 ) {
 
@@ -106,7 +109,8 @@ fun CategoriesToolbar(
                     param(it)
                 }, searchViewModel = searchViewModel,
                 getToken = getToken,
-                navHostController = navHostController
+                navHostController = navHostController,
+                dataStoreViewModel = dataStoreViewModel
             ) { onClick ->
 
 
@@ -130,6 +134,7 @@ fun SearchBar(
     searchViewModel: SearchViewModel,
     getToken: String,
     navHostController: NavHostController,
+    dataStoreViewModel: DataStoreViewModel,
     onSearchClicked: (String) -> Unit,
     params: (onClick: Boolean) -> Unit
 ) {
@@ -175,8 +180,29 @@ fun SearchBar(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearchClicked(text)
-                    keyboardController?.hide()
+                    if (text.isNotEmpty() || text != "") {
+                        onClickSearchButton = true
+
+                        searchViewModel.getSearchAnnouncement(
+                            query = text,
+                            token = getToken,
+                            priceFrom = 0,
+                            priceTo = 1000000,
+                            orderBy = "desc",
+                            page = 1,
+                            dataStoreViewModel = dataStoreViewModel
+                        )
+
+                        navHostController.navigate("search_screen?query=$text")
+
+                        params(onClickSearchButton)
+
+                        keyboardController?.hide()
+
+                        onClickSearchButton = false
+                        keyboardController?.hide()
+                    }
+
                 },
 
                 ),
@@ -215,7 +241,8 @@ fun SearchBar(
                                     priceFrom = 0,
                                     priceTo = 1000000,
                                     orderBy = "desc",
-                                    page = 1
+                                    page = 1,
+                                    dataStoreViewModel = dataStoreViewModel
                                 )
 
                                 navHostController.navigate("search_screen?query=$text")
@@ -249,7 +276,8 @@ fun CategoriesItem(
     categoriesModel: CategoriesModel,
     categoryViewModel: CategoryViewModel,
     getToken: String,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    dataStoreViewModel: DataStoreViewModel
 ) {
     Row(
         modifier = modifier
@@ -274,7 +302,8 @@ fun CategoriesItem(
                     priceFrom = 0,
                     priceTo = 1000000,
                     orderBy = "desc",
-                    page = 1
+                    page = 1,
+                    dataStoreViewModel = dataStoreViewModel
                 )
 
 

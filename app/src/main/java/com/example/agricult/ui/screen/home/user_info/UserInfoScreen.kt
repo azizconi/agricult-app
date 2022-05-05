@@ -1,12 +1,8 @@
 package com.example.agricult.ui.screen.home.user_info
 
 import android.app.DatePickerDialog
-import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import android.widget.DatePicker
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,7 +31,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.agricult.R
 import com.example.agricult.models.profileShowResult.Data
-import com.example.agricult.models.updateProfileUser.UpdateProfileUserModel
 import com.example.agricult.ui.screen.login.OutlinedTextFieldBackground
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldBorder
@@ -82,7 +77,8 @@ fun UserInfoScreen(
             data = profileData,
             profileRequestViewModel = profileRequestViewModel,
             getToken = getToken.value,
-            navHostController = navHostController
+            navHostController = navHostController,
+            dataStoreViewModel = dataStoreViewModel
         ) {
             changeData = it
         }
@@ -244,7 +240,13 @@ fun PhotoProfile(
                     data = getContentActivityResult.uri
                         ?: "http://api.agricult.colibri.tj/public/storage/" + profileData.image,
                     builder = {
-                        placeholder(R.drawable.search)
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(20.dp)
+                        ) {
+                            placeholder(R.drawable.ic_baseline_image_24)
+                        }
                     }),
                 contentScale = ContentScale.Crop,
                 contentDescription = "user-photo",
@@ -292,6 +294,7 @@ fun FormUserInfo(
     profileRequestViewModel: ProfileRequestViewModel,
     getToken: String,
     navHostController: NavHostController,
+    dataStoreViewModel: DataStoreViewModel,
     changedData: (Boolean) -> Unit
 ) {
 
@@ -558,32 +561,40 @@ fun FormUserInfo(
                     onClick = {
 
                         if (imageMultipart != null) {
-                            val updateDataUserProfile = UpdateProfileUserModel(
-                                name = name,
-                                surname = surname,
-                                phone = numberPhone,
-                                date_of_birth = date,
-                                address = address,
-                                media = imageMultipart!!,
-                            )
+
+                            val requestBody: RequestBody = MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
+                                .addFormDataPart("name", name.toString())
+                                .addFormDataPart("surname", surname.toString())
+                                .addFormDataPart("date_of_birth", date.toString())
+                                .addFormDataPart("address", address.toString())
+                                .addFormDataPart("phone", numberPhone.toString())
+                                .addPart(imageMultipart!!)
+
+                                .build()
+
+                            Log.e("TAG", "FormUserInfo: ${imageMultipart!!.body}")
 
                             profileRequestViewModel.updateProfileRequest(
                                 token = getToken,
-                                updateProfileUserModel = updateDataUserProfile
+                                requestBody = requestBody,
+                                dataStoreViewModel = dataStoreViewModel
                             )
                             navHostController.popBackStack()
                         } else {
-                            val updateDataUserProfile = UpdateProfileUserModel(
-                                name = name,
-                                surname = surname,
-                                phone = numberPhone,
-                                date_of_birth = date,
-                                address = address
-                            )
+                            val requestBody: RequestBody = MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
+                                .addFormDataPart("name", name.toString())
+                                .addFormDataPart("surname", surname.toString())
+                                .addFormDataPart("date_of_birth", date.toString())
+                                .addFormDataPart("phone", numberPhone.toString())
+                                .addFormDataPart("address", address.toString())
+                                .build()
 
                             profileRequestViewModel.updateProfileRequest(
                                 token = getToken,
-                                updateProfileUserModel = updateDataUserProfile
+                                requestBody = requestBody,
+                                dataStoreViewModel = dataStoreViewModel
                             )
                             navHostController.popBackStack()
                         }

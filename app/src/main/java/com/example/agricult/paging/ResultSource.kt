@@ -15,8 +15,8 @@ class ResultSource(
     private val categoryViewModel: CategoryViewModel,
     private val dataStoreViewModel: DataStoreViewModel,
     private val categoryId: Int? = null,
-    private val priceFrom: Int? = null,
-    private val priceTo: Int? = null,
+    private val priceFrom: String? = null,
+    private val priceTo: String? = null,
     private val orderBy: String? = null,
 ) : PagingSource<Int, Data>() {
 

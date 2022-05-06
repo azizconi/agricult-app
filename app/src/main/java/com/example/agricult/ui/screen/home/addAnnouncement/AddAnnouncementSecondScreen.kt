@@ -1,9 +1,11 @@
 package com.example.agricult.ui.screen.home.addAnnouncement
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
-import com.bumptech.glide.util.Util
 import com.example.agricult.R
 import com.example.agricult.models.addAds.AddAds
 import com.example.agricult.ui.screen.home.user_info.getFileFromPath
@@ -37,18 +38,13 @@ import com.example.agricult.ui.theme.TextFieldColor
 import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.google.accompanist.coil.rememberCoilPainter
-import okhttp3.FormBody
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.MultipartBody.Part.Companion.createFormData
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 @SuppressLint("ResourceType")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AddAnnouncementSecondScreen(
     modifier: Modifier = Modifier,
@@ -61,6 +57,7 @@ fun AddAnnouncementSecondScreen(
     val getToken = remember {
         mutableStateOf("")
     }
+
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
     val labelTextColor by remember {
@@ -72,16 +69,14 @@ fun AddAnnouncementSecondScreen(
         mutableStateOf("")
     }
 
-
     val context = LocalContext.current
 
     val getContentActivityResult = rememberGetContentActivityResult()
     val file =
-        getContentActivityResult.uri?.let { uri -> getFileFromPath(uri, "profilePicture", context) }
+        getContentActivityResult.uri?.let { uri -> getFileFromPath(uri, "image", context) }
 
     val requestBody = file?.asRequestBody("image/*".toMediaType())
-    val imageMultipart = requestBody?.let { createFormData("media", file.name, it) }
-
+    val imageMultipart = requestBody?.let { createFormData("media[]", "${getRandomString(10)}${file.name}", it) }
 
 
     Column(
@@ -140,8 +135,6 @@ fun AddAnnouncementSecondScreen(
                         fontFamily = FontFamily(Font(R.font.roboto_medium)),
                         color = Color(0xff333333)
                     )
-
-
                 }
             }
 
@@ -263,7 +256,6 @@ fun AddAnnouncementSecondScreen(
                             },
                         )
                     }
-
                 }
             }
 
@@ -282,7 +274,6 @@ fun AddAnnouncementSecondScreen(
                                 strokeWidth
                             )
                         }
-
                 ) {
 
                 }
@@ -296,7 +287,6 @@ fun AddAnnouncementSecondScreen(
 
                 ) {
 
-                    Log.e("TAG", "AddAnnouncementSecondScreen: ${data?.categoryId}")
 
                     Button(
                         modifier = modifier
@@ -310,6 +300,7 @@ fun AddAnnouncementSecondScreen(
                                 descriptionAnnouncement.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
                             if (data != null) {
+
                                 categoryViewModel.addAdsRequest(
                                     token = getToken.value,
                                     category_id = data.categoryId!!,
@@ -319,7 +310,7 @@ fun AddAnnouncementSecondScreen(
                                     phone = data.phone!!,
                                     price = data.price!!,
                                     description = description,
-                                    media = imageMultipart!!
+                                    images = listOf(imageMultipart!!)
                                 )
 
                                 navHostController.navigate("categories") {
@@ -327,10 +318,7 @@ fun AddAnnouncementSecondScreen(
                                         inclusive = true
                                     }
                                 }
-
                             }
-
-
                         }
                     ) {
                         Text(
@@ -342,9 +330,14 @@ fun AddAnnouncementSecondScreen(
                     }
                 }
             }
-
-
         }
 
     }
+}
+
+fun getRandomString(length: Int) : String {
+    val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+    return (1..length)
+        .map { allowedChars.random() }
+        .joinToString("")
 }

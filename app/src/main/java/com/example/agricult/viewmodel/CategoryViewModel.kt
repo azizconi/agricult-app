@@ -13,7 +13,6 @@ import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.category.Data
 import com.example.agricult.models.my_ads.MyAdsModel
 import com.example.agricult.network.RetrofitInstance
-import okhttp3.Address
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -39,8 +38,8 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     fun getCategoryRequest(
         token: String,
         categoryId: Int,
-        priceFrom: Int? = null,
-        priceTo: Int? = null,
+        priceFrom: String? = null,
+        priceTo: String? = null,
         page: Int? = null,
         orderBy: String? = null,
         dataStoreViewModel: DataStoreViewModel? = null
@@ -60,8 +59,8 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     private fun setCategoryRequest(
         token: String,
         categoryId: Int,
-        priceFrom: Int? = null,
-        priceTo: Int? = null,
+        priceFrom: String? = null,
+        priceTo: String? = null,
         page: Int? = null,
         orderBy: String? = null,
         dataStoreViewModel: DataStoreViewModel? = null
@@ -87,7 +86,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            getCategoryModel.value = emptyList()
+//                            getCategoryModel.value = emptyList()
 
                             getCategoryModel.value = it.data
                             Log.e("TAG", "onResponse: $it")
@@ -176,12 +175,12 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         price: RequestBody,
         title: RequestBody,
         email: RequestBody,
-        media: MultipartBody.Part
+        images: List<MultipartBody.Part>
     ) {
         RetrofitInstance().api().addAds(
             token = "Bearer $token",
             category_id = category_id,
-            media = media,
+            images = images,
             address = address,
             phone = phone,
             price = price,

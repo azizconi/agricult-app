@@ -38,6 +38,7 @@ class FavouriteViewModel(application: Application) : AndroidViewModel(applicatio
                     if (response.isSuccessful) {
                         response.body()?.let {
 
+
                             getFavouriteAnnouncementModel.value = it.data
                             Log.e("TAG", "onResponse: ${it.data.size}")
 

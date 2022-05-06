@@ -53,8 +53,8 @@ interface AgricultureApi {
         @Header(value = "Authorization") token: String,
         @Query("category_id") categoryId: Int,
         @Query("order_by") orderBy: String? = "desc",
-        @Query("price_from") priceFrom: Int? = 0,
-        @Query("price_to") priceTo: Int? = 1000000,
+        @Query("price_from") priceFrom: String? = "0",
+        @Query("price_to") priceTo: String? = "1000000",
         @Query("page") page: Int? = 1
     ): Call<CategoryModel>
 
@@ -130,7 +130,7 @@ interface AgricultureApi {
         @Part("category_id") category_id: RequestBody,
         @Part("moderation_status_id") moderation_status_id: Int = 1,
         @Part("email") email: RequestBody,
-        @Part media: MultipartBody.Part,
+        @Part images: List<MultipartBody.Part>,
     ): Call<String>
 
 

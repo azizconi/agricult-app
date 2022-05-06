@@ -47,7 +47,7 @@ fun AnnouncementItemScreen(
     favouriteViewModel: FavouriteViewModel,
     navHostController: NavHostController,
     categoryViewModel: CategoryViewModel,
-    data: LazyPagingItems<Data>
+//    data: LazyPagingItems<Data>
 ) {
 
 
@@ -66,10 +66,10 @@ fun AnnouncementItemScreen(
     ) {
 
 
-        items(data.itemCount) { item ->
+        items(categoryModel.size) { item ->
 
             AnnouncementItems(
-                data = data[item]!!,
+                data = categoryModel[item],
                 dataStoreViewModel = dataStoreViewModel,
                 favouriteViewModel = favouriteViewModel,
                 navHostController = navHostController,

@@ -299,8 +299,8 @@ fun CategoriesItem(
                 categoryViewModel.getCategoryRequest(
                     token = getToken,
                     categoryId = categoriesModel.id!!,
-                    priceFrom = 0,
-                    priceTo = 1000000,
+                    priceFrom = "0",
+                    priceTo = "1000000",
                     orderBy = "desc",
                     page = 1,
                     dataStoreViewModel = dataStoreViewModel

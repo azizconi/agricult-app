@@ -181,7 +181,7 @@ fun RegisterScreen(
                 singleLine = true,
                 value = numberPhone,
                 onValueChange = {
-                    if (charPhoneNumber <= 9) {
+                    if (it.length <= charPhoneNumber) {
                         numberPhone = it
                     }
                 },
@@ -398,6 +398,7 @@ fun RegisterScreen(
                             ),
                             dataStoreViewModel = dataStoreViewModel
                         )
+
 
                     } else {
                         Toast.makeText(

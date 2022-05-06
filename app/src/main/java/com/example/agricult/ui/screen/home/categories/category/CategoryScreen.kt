@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.agricult.R
 import com.example.agricult.models.category.Data
@@ -106,8 +107,8 @@ fun CategoryScreen(
                     categoryId = idCategory.toInt(),
                     token = dataStoreViewModel.readFromDataStore.value.toString(),
                     orderBy = "desc",
-                    priceFrom = minPriceByData.toInt(),
-                    priceTo = maxPriceByData.toInt(),
+                    priceFrom = minPriceByData.toInt().toString(),
+                    priceTo = maxPriceByData.toInt().toString(),
                     dataStoreViewModel = dataStoreViewModel
                 )
             } else {
@@ -115,8 +116,8 @@ fun CategoryScreen(
                     categoryId = idCategory.toInt(),
                     token = dataStoreViewModel.readFromDataStore.value.toString(),
                     orderBy = "asc",
-                    priceFrom = minPriceByData.toInt(),
-                    priceTo = maxPriceByData.toInt(),
+                    priceFrom = minPriceByData.toInt().toString(),
+                    priceTo = maxPriceByData.toInt().toString(),
                     dataStoreViewModel = dataStoreViewModel
                 )
             }
@@ -136,25 +137,27 @@ fun CategoryScreen(
                 categoryViewModel.getCategoryRequest(
                     token = dataStoreViewModel.readFromDataStore.value.toString(),
                     categoryId = idCategory.toInt(),
-                    priceFrom = minPriceByData.toInt(),
-                    priceTo = maxPriceByData.toInt(),
+                    priceFrom = minPriceByData.toInt().toString(),
+                    priceTo = maxPriceByData.toInt().toString(),
                     orderBy = orderByData,
                     dataStoreViewModel = dataStoreViewModel
                 )
             }
 
         }
-        val data = getPhotoPagination(
-            categoryId = idCategory.toInt(),
-            priceFrom = minPriceByData.toInt(),
-            priceTo = maxPriceByData.toInt(),
-            orderBy = orderByData,
-            dataStoreViewModel = dataStoreViewModel,
-            categoryViewModel = categoryViewModel
-        ).collectAsLazyPagingItems()
+        val data = 1
+//            getPhotoPagination(
+//            categoryId = idCategory.toInt(),
+//            priceFrom = minPriceByData,
+//            priceTo = maxPriceByData,
+//            orderBy = orderByData,
+//            dataStoreViewModel = dataStoreViewModel,
+//            categoryViewModel = categoryViewModel
+//        ).collectAsLazyPagingItems()
 
 
 
+//        val dataCategory = data
 
         AnnouncementItemScreen(
             categoryModel = categoryViewModel.getCategoryModel.value,
@@ -162,7 +165,7 @@ fun CategoryScreen(
             favouriteViewModel = favouriteViewModel,
             navHostController = navHostController,
             categoryViewModel = categoryViewModel,
-            data = data
+//            data = data
         )
     }
 
@@ -447,8 +450,8 @@ fun getPhotoPagination(
     categoryViewModel: CategoryViewModel,
     dataStoreViewModel: DataStoreViewModel,
     orderBy: String? = "desk",
-    priceTo: Int? = 0,
-    priceFrom: Int? = 1000000,
+    priceTo: String? = "0",
+    priceFrom: String? = "1000000",
     categoryId: Int? = 0
 ): Flow<PagingData<Data>> {
     return Pager(
@@ -464,7 +467,6 @@ fun getPhotoPagination(
             priceTo = priceTo,
             priceFrom = priceFrom,
             categoryId = categoryId,
-
         )
     }.flow
 }

@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -31,15 +30,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.agricult.R
-import com.example.agricult.models.addAds.AddAds
 import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextFieldColor
@@ -48,7 +43,6 @@ import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.ProfileRequestViewModel
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddAnnouncement(
     modifier: Modifier = Modifier,
@@ -122,7 +116,7 @@ fun AddAnnouncement(
     var categoriesModel by remember { mutableStateOf("") }
     var getCategoriesId by remember { mutableStateOf(0) }
 
-    var textfieldSize by remember { mutableStateOf(Size.Zero) }
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     val icon = if (expanded)
         Icons.Filled.ArrowDropUp //it requires androidx.compose.material:material-icons-extended
@@ -632,7 +626,7 @@ fun AddAnnouncement(
                             .fillMaxWidth()
                             .clickable { expanded = !expanded }
                             .onGloballyPositioned { coordinates ->
-                                textfieldSize = coordinates.size.toSize()
+                                textFieldSize = coordinates.size.toSize()
                             }
                             .height(40.dp)
                             .background(
@@ -679,7 +673,7 @@ fun AddAnnouncement(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+                    .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
             ) {
                 categoriesModels.forEach { label ->
                     DropdownMenuItem(onClick = {
@@ -746,9 +740,6 @@ fun AddAnnouncement(
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-
-                        Log.e("TAG", "AddAnnouncement: $getCategoriesId", )
-
                         navHostController.navigate(
                             "addAdsSecondScreen?price=$priceAnnouncement&" +
                                     "address=$address&" +

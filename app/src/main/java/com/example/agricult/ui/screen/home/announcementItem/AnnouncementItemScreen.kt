@@ -21,14 +21,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.agricult.R
+import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.category.Data
+import com.example.agricult.paging.ResultSource
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.ui.theme.TextPalleteGrey
 import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.FavouriteViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import kotlinx.coroutines.flow.Flow
 
 
 @Composable
@@ -38,11 +46,15 @@ fun AnnouncementItemScreen(
     dataStoreViewModel: DataStoreViewModel,
     favouriteViewModel: FavouriteViewModel,
     navHostController: NavHostController,
-    categoryViewModel: CategoryViewModel
+    categoryViewModel: CategoryViewModel,
+    data: LazyPagingItems<Data>
 ) {
 
 
     Log.e("TAG", "AnnouncementItemScreen: ${categoryModel.size}")
+
+
+
 
 
     LazyColumn(
@@ -51,12 +63,13 @@ fun AnnouncementItemScreen(
             .fillMaxHeight()
             .background(Color(0xffE5E5E5))
             .padding(bottom = 60.dp),
+    ) {
 
-        ) {
-        items(categoryModel.size) {
+
+        items(data.itemCount) { item ->
 
             AnnouncementItems(
-                data = categoryModel[it],
+                data = data[item]!!,
                 dataStoreViewModel = dataStoreViewModel,
                 favouriteViewModel = favouriteViewModel,
                 navHostController = navHostController,
@@ -64,6 +77,7 @@ fun AnnouncementItemScreen(
             )
         }
     }
+
 }
 
 
@@ -94,15 +108,13 @@ fun AnnouncementItems(
 
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
+    categoryViewModel.getAdsModel.value = null
 
     Row(
-
-
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(vertical = 16.dp)
             .clickable {
-
                 categoryViewModel.getAdsById(
                     id = data.id,
                     token = getToken.value,
@@ -118,10 +130,8 @@ fun AnnouncementItems(
                 .fillMaxWidth()
                 .height(124.dp)
                 .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(4.dp),
-
-
-            ) {
+            shape = RoundedCornerShape(4.dp)
+        ) {
 
             Column(
                 modifier = modifier
@@ -185,7 +195,7 @@ fun AnnouncementItems(
                                         getToken.value,
                                         data.id
                                     )
-                                    Log.e("TAG", "AnnouncementItems: включить", )
+                                    Log.e("TAG", "AnnouncementItems: включить")
                                     data.is_favorite = true
                                 } else {
                                     favouriteViewModel.deleteFavoriteStore(
@@ -193,7 +203,7 @@ fun AnnouncementItems(
                                         data.id
                                     )
                                     data.is_favorite = false
-                                    Log.e("TAG", "AnnouncementItems: выключить", )
+                                    Log.e("TAG", "AnnouncementItems: выключить")
                                 }
 
                                 if (!data.is_favorite) {
@@ -222,3 +232,4 @@ fun AnnouncementItems(
         }
     }
 }
+

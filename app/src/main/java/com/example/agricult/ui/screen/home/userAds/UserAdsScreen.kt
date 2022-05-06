@@ -45,7 +45,7 @@ fun UserAdsScreen(
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
 
 
-
+//    categoryViewModel.getCategoryModel.value = emptyList()
 
     categoryViewModel.userAdsRequest(
         getToken.value,
@@ -54,6 +54,7 @@ fun UserAdsScreen(
 
     val getUserAds = categoryViewModel.getCategoryModel.value
 
+    Log.e("TAG", "UserAdsScreen: $getUserAds", )
     Column {
         UserAdsToolbar(navHostController = navHostController)
         AnnouncementUserAdsItemsScreen(
@@ -120,10 +121,6 @@ fun AnnouncementUserAdsItemsScreen(
     navHostController: NavHostController
 ) {
 
-
-    Log.e("TAG", "AnnouncementItemScreen: ${categoryModel.size}")
-
-
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -188,10 +185,6 @@ fun AnnouncementUserAdsItems(
         isFavouriteIcon.value = R.drawable.heart
     } else {
         isFavouriteIcon.value = R.drawable.heard_click
-    }
-
-    val isClickFavourite = remember {
-        mutableStateOf(false)
     }
 
     val getToken = remember {

@@ -1,6 +1,7 @@
 package com.example.agricult.ui.screen.home.addAnnouncement
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -44,6 +45,7 @@ import okhttp3.MultipartBody
 import okhttp3.MultipartBody.Part.Companion.createFormData
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @SuppressLint("ResourceType")
 @OptIn(ExperimentalFoundationApi::class)
@@ -302,32 +304,33 @@ fun AddAnnouncementSecondScreen(
                             .height(44.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = PrimaryColorGreen),
                         onClick = {
-                            if (imageMultipart != null) {
-
-                                val requestBodyData: RequestBody = MultipartBody.Builder()
-                                    .setType(MultipartBody.FORM)
-                                    .addFormDataPart("title", data?.title.toString())
-                                    .addFormDataPart("description", data?.description.toString())
-                                    .addFormDataPart("phone", data?.phone.toString())
-                                    .addFormDataPart("price", data?.price.toString())
-                                    .addFormDataPart("address", data?.address.toString())
-//                                    .addPart(imageMultipart)
-                                    .build()
 
 
-                                if (data != null) {
-                                    categoryViewModel.addAdsRequest(
-                                        token = getToken.value,
-                                        category_id = data.categoryId!!,
-                                        user_id = data.userId!!,
-                                        moderation_status_id = data.moderationStatusId,
-                                        requestBody = requestBodyData,
-                                        media = imageMultipart
-                                    )
+                            val description =
+                                descriptionAnnouncement.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
+                            if (data != null) {
+                                categoryViewModel.addAdsRequest(
+                                    token = getToken.value,
+                                    category_id = data.categoryId!!,
+                                    title = data.title!!,
+                                    address = data.address!!,
+                                    email = data.email!!,
+                                    phone = data.phone!!,
+                                    price = data.price!!,
+                                    description = description,
+                                    media = imageMultipart!!
+                                )
+
+                                navHostController.navigate("categories") {
+                                    popUpTo("categories") {
+                                        inclusive = true
+                                    }
                                 }
 
                             }
+
+
                         }
                     ) {
                         Text(

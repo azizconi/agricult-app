@@ -13,6 +13,7 @@ import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.category.Data
 import com.example.agricult.models.my_ads.MyAdsModel
 import com.example.agricult.network.RetrofitInstance
+import okhttp3.Address
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -27,9 +28,8 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
     private var setAdsModel: Advertisement? = null
 
-    val getAdsModel = mutableStateOf(setAdsModel)
+    var getAdsModel = mutableStateOf(setAdsModel)
 
-//    var getMyAds = mutableStateOf(com.example.agricult.models.my_ads.Data())
 
     private var setMyAds: com.example.agricult.models.my_ads.Data? = null
 
@@ -43,7 +43,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         priceTo: Int? = null,
         page: Int? = null,
         orderBy: String? = null,
-        dataStoreViewModel: DataStoreViewModel
+        dataStoreViewModel: DataStoreViewModel? = null
     ) {
         return setCategoryRequest(
             token = token,
@@ -64,7 +64,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
         priceTo: Int? = null,
         page: Int? = null,
         orderBy: String? = null,
-        dataStoreViewModel: DataStoreViewModel
+        dataStoreViewModel: DataStoreViewModel? = null
     ) {
 
         RetrofitInstance().api().getCategory(
@@ -82,11 +82,12 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                 ) {
 
                     if (response.code() == 401) {
-                        dataStoreViewModel.clearDataStore()
+                        dataStoreViewModel?.clearDataStore()
                     }
 
                     if (response.isSuccessful) {
                         response.body()?.let {
+                            getCategoryModel.value = emptyList()
 
                             getCategoryModel.value = it.data
                             Log.e("TAG", "onResponse: $it")
@@ -168,19 +169,25 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
     fun addAdsRequest(
         token: String,
-        requestBody: RequestBody,
-        category_id: Int,
-        user_id: Int,
-        moderation_status_id: Int,
+        category_id: RequestBody,
+        address: RequestBody,
+        description: RequestBody,
+        phone: RequestBody,
+        price: RequestBody,
+        title: RequestBody,
+        email: RequestBody,
         media: MultipartBody.Part
     ) {
         RetrofitInstance().api().addAds(
             token = "Bearer $token",
-            requestBody = requestBody,
-            moderation_status_id = moderation_status_id,
-            user_id = user_id,
             category_id = category_id,
             media = media,
+            address = address,
+            phone = phone,
+            price = price,
+            title = title,
+            description = description,
+            email = email
         ).enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
 

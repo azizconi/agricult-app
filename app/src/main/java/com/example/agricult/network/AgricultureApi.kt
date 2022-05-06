@@ -2,7 +2,6 @@ package com.example.agricult.network
 
 import com.example.agricult.models.addAds.AddAds
 import com.example.agricult.models.ads.AdsModel
-import com.example.agricult.models.ads.Advertisement
 import com.example.agricult.models.categories.CategoriesModel
 import com.example.agricult.models.category.CategoryModel
 import com.example.agricult.models.contacts.ContactModel
@@ -67,7 +66,7 @@ interface AgricultureApi {
         @Query("order_by") orderBy: String = "desk",
         @Query("price_from") priceFrom: Int,
         @Query("price_to") priceTo: Int,
-        @Query("page") page: Int = 1
+        @Query("page") page: Int? = 1
     ): Call<SearchModel>
 
 
@@ -123,12 +122,15 @@ interface AgricultureApi {
     @POST("/api/advertisements/store")
     fun addAds(
         @Header(value = "Authorization") token: String,
-
-        @Part("category_id") category_id: Int,
-        @Part("user_id") user_id: Int,
-        @Part("moderation_status_id") moderation_status_id: Int,
-        @Part("media") media: MultipartBody.Part,
-        @Part requestBody: RequestBody
+        @Part("title") title: RequestBody,
+        @Part("description") description: RequestBody,
+        @Part("phone") phone: RequestBody,
+        @Part("price") price: RequestBody,
+        @Part("address") address: RequestBody,
+        @Part("category_id") category_id: RequestBody,
+        @Part("moderation_status_id") moderation_status_id: Int = 1,
+        @Part("email") email: RequestBody,
+        @Part media: MultipartBody.Part,
     ): Call<String>
 
 
@@ -147,5 +149,3 @@ interface AgricultureApi {
     ): Call<String>
 
 }
-
-//    .addPart(imageMultipart)

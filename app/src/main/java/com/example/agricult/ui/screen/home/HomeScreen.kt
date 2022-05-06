@@ -48,24 +48,45 @@ fun HomeScreen(
                         name = "Объявления",
                         route = "categories",
                         icon = R.drawable.list,
+                        routesIncluded = listOf(
+                            "category_screen?id={id}",
+                            "search_screen?query={query}",
+                            "ads_screen"
+                        )
                     ),
                     BottomNavItem(
                         name = "Подать объявления",
                         route = "add_screen",
                         icon = R.drawable.add,
-                        badgeCount = 0
+                        badgeCount = 0,
+                        routesIncluded = listOf(
+                            "addAdsSecondScreen?price={price}&" +
+                                    "address={address}&" +
+                                    "title={title}&" +
+                                    "phone={phone}&" +
+                                    "email={email}&" +
+                                    "categoryId={categoryId}&" +
+                                    "userId={userId}"
+                        )
                     ),
                     BottomNavItem(
                         name = "Избранное",
                         route = "favorites_screen",
                         icon = R.drawable.heart,
-                        badgeCount = 0
+                        badgeCount = 0,
+                        routesIncluded = listOf()
                     ),
                     BottomNavItem(
                         name = "Личный кабинет",
                         route = "profile_user_screen",
                         icon = R.drawable.profile,
-                        badgeCount = 0
+                        badgeCount = 0,
+                        routesIncluded = listOf(
+                            "contact_screen",
+                            "user_info_screen",
+                            "user_ads_screen",
+                            "edit_my_ads"
+                        )
                     ),
                 ),
                 navController = navHostController,
@@ -114,11 +135,13 @@ fun BottomNavigationBar(
         ) {
 
 
-
         items.forEach { item ->
 
 
-            val selected = item.route == backStackEntry.value?.destination?.route
+            val selected = item.route == backStackEntry.value?.destination?.route ||
+                    item.routesIncluded.any {
+                        it == backStackEntry.value?.destination?.route
+                    }
 
 
 

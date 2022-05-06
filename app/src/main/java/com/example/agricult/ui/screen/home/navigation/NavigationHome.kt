@@ -22,6 +22,8 @@ import com.example.agricult.ui.screen.home.search.SearchScreen
 import com.example.agricult.ui.screen.home.userAds.UserAdsScreen
 import com.example.agricult.ui.screen.home.user_info.UserInfoScreen
 import com.example.agricult.viewmodel.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -130,17 +132,16 @@ fun NavigationHome(
             val title = it.arguments?.getString("title")
             val phone = it.arguments?.getString("phone")
             val categoryId = it.arguments?.getString("categoryId")
-            val userId = it.arguments?.getString("userId")
+            val email = it.arguments?.getString("email")
 
             Log.e("TAG", "NavigationHome: $categoryId", )
             val data = AddAds(
-                price = price,
-                title = title,
-                address = address,
-                phone = phone,
-                categoryId = categoryId?.toInt(),
-                userId = userId?.toInt(),
-
+                price = price?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                title = title?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                address = address?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                phone = phone?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                categoryId = categoryId?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                email = email?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
             )
 
             AddAnnouncementSecondScreen(

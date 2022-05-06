@@ -16,10 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.agricult.R
 import com.example.agricult.ui.screen.ErrorInternetConnection
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
 import com.example.agricult.ui.screen.home.categories.SearchBar
+import com.example.agricult.ui.screen.home.categories.category.getPhotoPagination
 import com.example.agricult.ui.theme.PrimaryColorGreen
 import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
@@ -74,7 +76,10 @@ fun FavoritesScreen(
         )
 
 
-
+        val data = getPhotoPagination(
+            dataStoreViewModel = dataStoreViewModel,
+            categoryViewModel = categoryViewModel
+        ).collectAsLazyPagingItems()
 
 
 
@@ -84,7 +89,8 @@ fun FavoritesScreen(
             dataStoreViewModel = dataStoreViewModel,
             favouriteViewModel = favouriteViewModel,
             navHostController = navHostController,
-            categoryViewModel = categoryViewModel
+            categoryViewModel = categoryViewModel,
+            data = data
         )
 
 //        } else {

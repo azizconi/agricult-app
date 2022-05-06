@@ -25,7 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.agricult.R
+import com.example.agricult.models.category.Data
+import com.example.agricult.paging.ResultSource
 import com.example.agricult.ui.screen.home.announcementItem.AnnouncementItemScreen
 import com.example.agricult.ui.screen.home.categories.CategoriesToolbar
 import com.example.agricult.ui.theme.PrimaryColorGreen
@@ -34,6 +40,7 @@ import com.example.agricult.viewmodel.DataStoreViewModel
 import com.example.agricult.viewmodel.FavouriteViewModel
 import com.example.agricult.viewmodel.SearchViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import kotlinx.coroutines.flow.Flow
 
 
 @Composable
@@ -75,6 +82,7 @@ fun CategoryScreen(
     val getToken = remember {
         mutableStateOf("")
     }
+
 
 
     getToken.value = dataStoreViewModel.readFromDataStore.value.toString()
@@ -136,12 +144,25 @@ fun CategoryScreen(
             }
 
         }
+        val data = getPhotoPagination(
+            categoryId = idCategory.toInt(),
+            priceFrom = minPriceByData.toInt(),
+            priceTo = maxPriceByData.toInt(),
+            orderBy = orderByData,
+            dataStoreViewModel = dataStoreViewModel,
+            categoryViewModel = categoryViewModel
+        ).collectAsLazyPagingItems()
+
+
+
+
         AnnouncementItemScreen(
             categoryModel = categoryViewModel.getCategoryModel.value,
             dataStoreViewModel = dataStoreViewModel,
             favouriteViewModel = favouriteViewModel,
             navHostController = navHostController,
-            categoryViewModel = categoryViewModel
+            categoryViewModel = categoryViewModel,
+            data = data
         )
     }
 
@@ -420,4 +441,30 @@ fun FilterScreen(
             }
         }
     }
+}
+
+fun getPhotoPagination(
+    categoryViewModel: CategoryViewModel,
+    dataStoreViewModel: DataStoreViewModel,
+    orderBy: String? = "desk",
+    priceTo: Int? = 0,
+    priceFrom: Int? = 1000000,
+    categoryId: Int? = 0
+): Flow<PagingData<Data>> {
+    return Pager(
+        PagingConfig(
+            pageSize = 20,
+            prefetchDistance = 5
+        )
+    ) {
+        ResultSource(
+            categoryViewModel = categoryViewModel,
+            dataStoreViewModel = dataStoreViewModel,
+            orderBy = orderBy,
+            priceTo = priceTo,
+            priceFrom = priceFrom,
+            categoryId = categoryId,
+
+        )
+    }.flow
 }

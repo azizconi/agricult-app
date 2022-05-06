@@ -42,6 +42,8 @@ import com.example.agricult.viewmodel.CategoriesViewModel
 import com.example.agricult.viewmodel.CategoryViewModel
 import com.example.agricult.viewmodel.DataStoreViewModel
 import com.google.accompanist.coil.rememberCoilPainter
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @Composable
 fun EditUserAds(
@@ -82,7 +84,7 @@ fun EditUserAds(
         }
 
         var priceAnnouncement by remember {
-            mutableStateOf(adsData?.price)
+            mutableStateOf(adsData?.price?.toString())
         }
 
         var phone by remember {
@@ -294,7 +296,8 @@ fun EditUserAds(
                                     .fillMaxWidth(),
                                 value = priceAnnouncement.toString(),
                                 onValueChange = {
-                                    priceAnnouncement = it.toDouble()
+
+                                    priceAnnouncement = it
                                 },
                                 singleLine = true,
                                 cursorBrush = SolidColor(MaterialTheme.colors.primary),
@@ -806,20 +809,19 @@ fun EditUserAds(
                             onClick = {
 
 
-                                val addAds = AddAds(
-                                    title = nameAnnouncement,
-                                    price = priceAnnouncement.toString(),
-                                    description = description,
-                                    address = address,
-                                    phone = phone,
-                                    categoryId = getCategoriesId,
-                                    moderationStatusId = adsData!!.moderation_status!!.id,
-                                    email = email
 
+                                val addAds = AddAds(
+                                    title = nameAnnouncement?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    price = priceAnnouncement?.toString()?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    description = description?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    address = address?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    phone = phone?.toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    categoryId = getCategoriesId.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    email = email?.toRequestBody("multipart/form-data".toMediaTypeOrNull())
                                 )
                                 categoryViewModel.updateAds(
                                     token = getToken.value,
-                                    id = adsData.id!!,
+                                    id = adsData?.id!!,
                                     addAds = addAds,
                                     dataStoreViewModel = dataStoreViewModel
                                 )

@@ -6,24 +6,13 @@ import okhttp3.RequestBody
 
 
 data class AddAds(
-    @SerializedName("price")
-    val price: String? = null,
-    @SerializedName("description")
-    val description: String? = null,
-    @SerializedName("address")
-    val address: String? = null,
-    @SerializedName("phone")
-    val phone: String? = null,
-    @SerializedName("category_id")
-    val categoryId: Int? = null,
-    @SerializedName("user_id")
-    val userId: Int? = null,
-    @SerializedName("moderation_status_id")
-    val moderationStatusId: Int = 1,
-    @SerializedName("title")
-    val title: String? = null,
-    @SerializedName("email")
-    val email: String? = null,
-//    @SerializedName("media")
-    val media: RequestBody? = null
+
+    val price: RequestBody? = null,
+    val description: RequestBody? = null,
+    val address: RequestBody? = null,
+    val phone: RequestBody? = null,
+    val categoryId: RequestBody? = null,
+    val title: RequestBody? = null,
+    val email: RequestBody? = null,
+    val media: List<MultipartBody.Part>? = null
 )
